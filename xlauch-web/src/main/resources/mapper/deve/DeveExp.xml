@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xlauch.web.mapper.deve.DeveExpMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.xlauch.web.entity.deve.DeveExp">
+		<id column="exp_id" property="expId" />
+		<result column="name" property="name" />
+		<result column="datasource" property="datasource" />
+		<result column="code" property="code" />
+		<result column="sqlx" property="sqlx" />
+		<result column="script" property="script" />
+		<result column="page_path" property="pagePath" />
+		<result column="txt_able" property="txtAble" />
+		<result column="excel_able" property="excelAble" />
+		<result column="printtitle_able" property="printtitleAble" />
+		<result column="begin_row" property="beginRow" />
+		<result column="begin_col" property="beginCol" />
+		<result column="excel_temp" property="excelTemp" />
+		<result column="split_char" property="splitChar" />
+		<result column="encoding" property="encoding" />
+		<result column="xml_able" property="xmlAble" />
+		<result column="root_name" property="rootName" />
+		<result column="nodes_name" property="nodesName" />
+		<result column="line_char" property="lineChar" />
+		<result column="add_time" property="addTime" />
+		<result column="page_able" property="pageAble" />
+		<result column="fit_able" property="fitAble" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        exp_id AS expId, name, datasource ,code, sqlx, script, page_path AS pagePath, txt_able AS txtAble, excel_able AS excelAble, printtitle_able AS printtitleAble, begin_row AS beginRow, begin_col AS beginCol, excel_temp AS excelTemp, split_char AS splitChar, encoding, xml_able AS xmlAble, root_name AS rootName, nodes_name AS nodesName, line_char AS lineChar, add_time AS addTime, page_able AS pageAble, fit_able AS fitAble
+    </sql>
+
+	<!-- 列表分页查询 -->
+	<select id="selectDeveExpList"  parameterType="java.util.Map" resultMap="BaseResultMap">
+		SELECT
+			t.exp_id,
+			t.name,
+			t.datasource,
+			t.code,
+			t.sqlx,
+			t.script,
+			t.page_path,
+			t.txt_able,
+			t.excel_able,
+			t.printtitle_able,
+			t.begin_row,
+			t.begin_col,
+			t.excel_temp,
+			t.split_char,
+			t.encoding,
+			t.xml_able,
+			t.root_name,
+			t.nodes_name,
+			t.line_char,
+			t.add_time,
+			t.page_able,
+			t.fit_able
+		FROM
+			t_deve_exp AS t
+		<where>
+			<if test="txtAble != null">
+				t.txt_able = #{txtAble}
+			</if>
+			<if test="excelAble != null">
+				and t.excel_able = #{excelAble}
+			</if>
+			<if test="xmlAble != null">
+				and t.xml_able = #{xmlAble}
+			</if>
+			<if test="name != null">
+				AND t.name like CONCAT('%',#{name},'%')
+			</if>
+
+		</where>
+		order by t.add_time desc
+	</select>
+
+</mapper>

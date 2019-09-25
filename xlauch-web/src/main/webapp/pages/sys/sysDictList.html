@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>系统字典表</title>
+    <% layout("/inc/easyui.html"){} %>
+
+</head>
+<body>
+    <div id="tb" >
+        <form id="searchForm" name="searchForm" style="margin: 0px; padding: 0px;" method="post">
+            <table width="100%" class="sztable" align="center">
+                <tr>
+                    <td width="8%" align="right" class="sztabletext">字典编码:</td>
+                    <td width="20%" align="left"><input type="text" name="code" class="easyui-textbox"/></td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="sztabletext">
+                        <div style="float: left;">
+                            <#shiroa href="javascript:{doAdd()}" iconCls="icon-add" permission="sysDictAdd">添加</#shiroa>
+                            <#shiroa href="javascript:{doEdit()}" iconCls="icon-edit" permission="sysDictEdit">修改</#shiroa>
+                            <#shiroa href="javascript:{doDelete()}" iconCls="icon-remove" permission="sysDictDelete">删除</#shiroa>
+                        </div>
+                        <div style="float: right;">
+                            <a href="javascript:{doSearch()}" class="easyui-linkbutton" iconCls="icon-search" plain="true">查询</a>
+                            <a href="javascript:{doClear()}" class="easyui-linkbutton" iconCls="icon-redo" plain="true">清空</a>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <table id="dataGrid" style="width:auto;height:auto"></table>
+    <script type="text/javascript">
+        ${initDict('dictStatus')}
+        //初始化
+        $(function(){
+            $('#dataGrid').datagrid({
+                pagination:true,
+                fitColumns:true,
+                rownumbers:true,
+                fit:true,
+                toolbar: '#tb',
+                pageSize:20,
+                pageList:[20,30,40,50],
+                columns:[[
+                    {field: 'dictid', checkbox: true},
+                    {field:'code',title:'字典编码',width:120,align:'center'},
+                    {field:'val',title:'字典值',width:120,align:'center'},
+                    {field:'name',title:'字典名',width:120,align:'center'},
+                    {field:'status',title:'状态',width:120,align:'center',formatter:  _DICT.DICTSTATUS},
+                    {field:'ext1',title:'扩展值1',width:120,align:'center'},
+                    {field:'ext2',title:'扩展值2',width:120,align:'center'},
+                    {field:'ext3',title:'扩展值3',width:120,align:'center'}
+                ]],
+                onDblClickRow : function(rowIndex, rowData){
+                    doEdit(rowData) ;
+                }
+            });
+            doSearch();
+        });
+
+
+
+        /**
+         * 查询
+         */
+        function doSearch(){
+            var _obj = xlauch.serializeForm($('#searchForm').form());
+            var _url="${ctxPath}/sys/sysDict/list";
+            $('#dataGrid').datagrid({
+                url : _url,
+                queryParams:_obj
+            });
+        }
+
+        /**
+         *清空搜索条件
+         */
+        function doClear() {
+            $('#searchForm').form('reset');
+            $('#dataGrid').datagrid('load', {});
+        }
+        /**
+         * 添加
+         */
+        function doAdd() {
+            xlauch.addRow({
+                title : "&nbsp;添加" ,
+                href : "${ctxPath}/sys/sysDict/addInit",
+                width : 930,
+                height:530
+            });
+        }
+
+        /**
+         * 修改
+         */
+        function doEdit(r) {
+            var p = xlauch.editRow({
+                title : '&nbsp;修改',
+                href : '${ctxPath}/sys/sysDict/editInit',
+                width : 930,
+                row : r ,
+                //isIframe: true ,
+                height: 530 ,
+                onLoad : function() {
+                    var row = p.getRow() ;
+                    var f = p.find('form');
+                    f.form('load', row);
+                    p.find("#OLD_V_NAME").val(row.name);
+                }
+            });
+        }
+
+        /**
+         * 删除
+         */
+        function doDelete() {
+            xlauch.deleteRow({
+                pk : 'dictid',
+                url: "${ctxPath}/sys/sysDict/delete"
+            });
+        }
+
+
+    </script>
+
+</body>
+</html>

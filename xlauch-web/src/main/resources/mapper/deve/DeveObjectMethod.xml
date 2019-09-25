@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xlauch.web.mapper.deve.DeveObjectMethodMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.xlauch.web.entity.deve.DeveObjectMethod">
+		<id column="method_id" property="methodId" />
+		<result column="obj_id" property="objId" />
+		<result column="code" property="code" />
+		<result column="name" property="name" />
+		<result column="icon" property="icon" />
+		<result column="icon_path" property="iconPath" />
+		<result column="icon_position" property="iconPosition" />
+		<result column="method_type" property="methodType" />
+		<result column="show_type" property="showType" />
+		<result column="fit_cloumn" property="fitCloumn" />
+		<result column="width" property="width" />
+		<result column="height" property="height" />
+		<result column="seq" property="seq" />
+		<result column="msg" property="msg" />
+		<result column="default_method" property="defaultMethod" />
+		<result column="view_sql" property="viewSql" />
+		<result column="single_able" property="singleAble" />
+		<result column="first_load" property="firstLoad" />
+		<result column="default_order" property="defaultOrder" />
+		<result column="order_type" property="orderType" />
+		<result column="diy_js" property="diyJs" />
+		<result column="init_dict" property="initDict" />
+		<result column="page_path" property="pagePath" />
+		<result column="status" property="status" />
+		<result column="note" property="note" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        method_id AS methodId, obj_id AS objId, code, name, icon, icon_path AS iconPath, icon_position AS iconPosition, method_type AS methodType, show_type AS showType, fit_cloumn AS fitCloumn, width, height, seq, msg, default_method AS defaultMethod, view_sql AS viewSql, single_able AS singleAble, first_load AS firstLoad, default_order AS defaultOrder, order_type AS orderType, diy_js AS diyJs, init_dict AS initDict, page_path AS pagePath, status, note
+    </sql>
+
+
+    <!-- 列表分页查询 -->
+    <select id="selectDeveObjectMethodList"  parameterType="java.util.Map" resultMap="BaseResultMap">
+		select
+		     t.method_id,
+		     t.obj_id,
+		     t.code,
+		     t.name,
+		     t.icon,
+		     t.icon_path,
+		     t.icon_position,
+		     t.method_type,
+		     t.show_type,
+		     t.fit_cloumn,
+		     t.width,
+		     t.height,
+		     t.seq,
+		     t.msg,
+		     t.default_method,
+		     t.view_sql,
+		     t.single_able,
+		     t.first_load,
+		     t.default_order,
+		     t.order_type,
+		     t.diy_js,
+		     t.init_dict,
+		     t.page_path,
+		     t.status,
+		     t.note
+		from
+			t_deve_object_method as t
+        <where>
+			<if test="objId != null">
+				AND t.obj_id = #{objId}
+			</if>
+			<if test="name != null">
+				AND t.name like CONCAT('%',#{name},'%')
+			</if>
+			<if test="status != null">
+				AND t.status = #{status}
+			</if>
+        </where>
+		order by t.seq asc
+    </select>
+
+	<!-- 根据对象ID删除方法 -->
+	<delete id="deleteByObjectId" parameterType="int" >
+		DELETE
+		FROM
+			t_deve_object_method
+		WHERE
+			obj_id = #{objId}
+	</delete>
+
+</mapper>

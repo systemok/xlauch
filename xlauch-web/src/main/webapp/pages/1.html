@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="1.js"></script>
+    <script>
+
+        sayHello("fxz");
+
+        ${initDict('sex')}
+
+
+
+    </script>
+</head>
+<body>
+
+
+<%
+for(var i = 0; i < 1000 ;i++) {
+var k = i%2 + "";
+print(dict("sex",k));
+}
+%>
+
+<br/><hr/>
+<h4>3.1 调用函数直接显示 </h4>
+${dict("sex","1")}
+<br/><hr/>
+</body>
+</html>

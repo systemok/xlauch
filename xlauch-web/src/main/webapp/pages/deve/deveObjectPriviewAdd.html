@@ -1,0 +1,166 @@
+<form style="margin: 0px;padding: 0px;"  method="post" id="addForm">
+    <%
+        for(column in method.columnList){
+            if(column.formType == 'hidden'){
+                println(column.formStr);
+            }
+        }
+    %>
+
+    <table width="100%" class="sztable" align="center">
+        <tr>
+        <%
+            var _INDEX = 1 ;
+            for(column in method.columnList){
+            if(column.formType != 'hidden'){
+            if(_INDEX == 2 && column.cols > 1) {
+                print("</tr><tr>");
+                _INDEX = 2 ;
+            }
+        %>
+            <td width="20%" align="right" class="sztabletext">${column.cname}:</td>
+        <%
+            if(column.cols > 1) {
+                print("<td colspan=\"3\" >");
+            }else {
+                print("<td width=\"30%\" >");
+            }
+
+            if(column.dictAble == 1){               //字典
+        %>
+            <#dictTag name="${column.ename}" showType="${column.formType}" dictCode="${column.dictStr}"
+                    width="${column.width}" value="${column.defaultValue!''}" dataOptions="${column.uiCheck}" showNull="false" ></#dictTag>
+        <%
+            }else if(column.formType == 'file'){    //文件
+        %>
+            <span id="${column.ename}_FILESRC" ></span>&nbsp;&nbsp;
+            <input type="hidden" id="${column.ename}" name="${column.ename}" class="xlauch-file">&nbsp;&nbsp;
+            <a id="${column.ename}_FILEBTN" href="#" class="easyui-linkbutton" onclick="javascript:uploadFile('${column.ename}')">上传</a>
+        <%
+            }else if(column.formType == 'image'){   //图片
+        %>
+            &nbsp;<img src="${ctxPath}${column.defaultValue!'/res/jquery-easyui-1.5.3/themes/icons/pencil.png'}"
+                       width="${column.width!16}px;" height="${column.height!16}px;" id="${column.ename}_IMGSRC" >&nbsp;
+            <input type="hidden" id="${column.ename}">
+            <a href="#" class="easyui-linkbutton" onclick="javascript:chooseIcon('${column.ename}')">选择</a>
+        <%
+            }else {
+                println(column.formStr);
+            }
+        %>
+            </td>
+        <%
+            if(_INDEX++ % 2 ==0 || column.cols > 1){
+                print("</tr><tr>");
+                _INDEX = 1;
+            }
+        }}
+        %>
+        </tr>
+    </table>
+    <input type="hidden" id="XLAUCH_LOADEDTAGBTN" style="display:none" onclick="doOnloadSuccess()" />
+</form>
+<script type="text/javascript" >
+    /**
+     * 选择图标
+     */
+    var chooseIcon = function (imgId) {
+        xlauch.selIcon({
+            selfun : function (iconUrl, iconCss) {
+                if(iconUrl) {
+                    $('#' + imgId).val(iconUrl);
+                    $("#" + imgId + "_IMGSRC").attr("src","${ctxPath}" + iconUrl);
+                }
+            }
+        }, "${ctxPath}")
+    }
+
+
+    /**
+     * 文件上传
+     */
+    var uploadFile = function (fileId) {
+        xlauch.upload({
+            upNum : 2,
+            filters: {
+                mime_types : [ //只允许上传图片和zip文件
+                    { title : "所有文件", extensions : "*" }
+                ],
+                max_file_size : '15mb', //最大只能上传15mb的文件
+                prevent_duplicates : true //不允许选取重复文件
+            },
+            okfun : function (files) {
+                if(files){
+                    var _names = [] ;
+                    var _hiddens = [] ;
+                    var _str = "<span id='span_"+fileId +"#fid#'>#fileName#&nbsp;<a href=\"#\"  onclick=\"javascript:deleteFile('#fid#','#fileId#')\">删除</a><br/></span>";
+
+                    files.forEach(function(file,index,array){
+                        _hiddens.push("{id:"+file.id+",name:\""+file.name+"\"}");
+                        _names.push(_str.replace("#fileName#",file.name).replace("#fid#",file.id).replace("#fid#",file.id).replace("#fileId#" , fileId));
+                    });
+
+
+                    var _value = $("#"+fileId).val();
+                    if(_value && _value != '[]'){
+                        _value = _value.substr(1, _value.length - 2);
+                        $("#" + fileId).val("["+ _hiddens.join(",") + "," + _value + "]");
+                    }else {
+                        $("#" + fileId).val("["+ _hiddens.join(",") + "]");
+                    }
+
+
+                    var _html = $("#" + fileId + "_FILESRC").html();
+                    $("#" + fileId + "_FILESRC").html(_html + _names.join(""));
+                    //$("#" + fileId + "_FILEBTN").css("display","none");
+                }
+            }
+        });
+    }
+
+    /**
+     * 文件删除文件
+     */
+    var deleteFile= function (fid , fileId) {
+        $("#span_"+fileId + fid).remove();
+        $.post("${ctxPath}/deve/deveFileInfo/delete", {ids : fid+''} );
+
+        var _value = $("#"+fileId).val();
+        var _arr = eval(_value);
+        _arr = $.grep(_arr, function(n,i){
+            return n.id != fid;
+        });
+        var str = $.map(_arr, function(n){
+            return "{id:"+n.id+",name:\""+n.name+"\"}"
+        });
+        $("#"+fileId).val("[" + str.join(",") + "]");
+
+
+        if (!$("#" + fileId + "_FILESRC").html()){
+            $("#" + fileId + "_FILESRC").html("");
+            $("#" + fileId + "_FILEBTN").css("display","");
+        }
+    }
+
+    function doOnloadSuccess() {
+        $(".xlauch-file").each(function () {
+            var fileId = $(this).attr("name");
+            var _value = $(this).val();
+
+            var _str = "<span id='span_"+fileId +"#fid#'>#fileName#&nbsp;<a href=\"#\"  onclick=\"javascript:deleteFile('#fid#','#fileId#')\">删除</a><br/></span>";
+            if(_value) {
+                var _names = [] ;
+                try {
+                    var _arr = eval(_value);
+                    _arr.forEach(function(file,index,array){
+                        _names.push(_str.replace("#fileName#",file.name).replace("#fid#",file.id).replace("#fid#",file.id).replace("#fileId#" , fileId));
+                    });
+                    $("#" + fileId + "_FILESRC").html(_names.join(""));
+                }catch (err){
+
+                }
+            }
+        });
+    }
+
+</script>

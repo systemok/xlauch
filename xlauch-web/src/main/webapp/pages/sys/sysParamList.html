@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SysParam(系统参数表)</title>
+    <% layout("/inc/easyui.html"){} %>
+
+    <script>
+        ${initDict('yesornot')}
+    </script>
+
+</head>
+<body>
+<div id="tb" >
+    <form id="searchForm" name="searchForm" style="margin: 0px; padding: 0px;" method="post">
+        <table width="100%" class="sztable" align="center">
+            <tr>
+                <td width="8%" align="right" class="sztabletext">参数名:</td>
+                <td width="20%" align="left"><input type="text" name="name" class="easyui-textbox"/></td>
+            </tr>
+            <tr>
+                <td colspan="6" class="sztabletext">
+                    <div style="float: left;">
+                        <#shiroa href="javascript:{doAdd()}" iconCls="icon-add" permission="sysParamAdd">添加</#shiroa>
+                        <#shiroa href="javascript:{doEdit()}" iconCls="icon-edit" permission="sysParamEdit">修改</#shiroa>
+                        <!--<a href="javascript:{doDelete()}" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>-->
+                    </div>
+                    <div style="float: right;">
+                        <a href="javascript:{doSearch()}" class="easyui-linkbutton" iconCls="icon-search" plain="true">查询</a>
+                        <a href="javascript:{doClear()}" class="easyui-linkbutton" iconCls="icon-redo" plain="true">清空</a>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="dataGrid" style="width:auto;height:auto"></table>
+<script type="text/javascript">
+    //初始化
+    $(function(){
+        $('#dataGrid').datagrid({
+            pagination:true,
+            fitColumns:true,
+            rownumbers:true,
+            fit:true,
+            toolbar: '#tb',
+            pageSize:20,
+            pageList:[20,30,40,50],
+            columns:[[
+                {field: 'id', checkbox: true},
+                {field:'name',title:'参数名称',width:120,align:'center'},
+                {field:'value',title:'参数值',width:120,align:'center'},
+                {field:'type',title:'参数类型',width:120,align:'center',hidden:true},
+                {field:'ext1',title:'扩展值1',width:120,align:'center'},
+                {field:'ext2',title:'扩展值2',width:120,align:'center',hidden:true},
+                {field:'ext3',title:'扩展值3',width:120,align:'center',hidden:true},
+
+                {field:'editable',title:'能否修改',width:120,align:'center',formatter:_DICT.YESORNOT },
+                {field:'status',title:'是否已伪删除（1：已删除，0：正常）（用于公司复制的数据，公司被删除时）',width:120,align:'center',hidden:true},
+                {field:'createuser',title:'创建人员',width:120,align:'center',hidden:true},
+                {field:'createtime',title:'创建日期',width:120,align:'center',hidden:true},
+                {field:'updateuser',title:'修改人员',width:120,align:'center',hidden:true},
+                {field:'updatetime',title:'修改日期',width:120,align:'center',hidden:true},
+                {field:'note',title:'备注',width:120,align:'center'}
+            ]],
+            onDblClickRow : function(rowIndex, rowData){
+                doEdit(rowData) ;
+            }
+        });
+        doSearch();
+    });
+
+
+
+    /**
+     * 查询
+     */
+    function doSearch(){
+        var _obj = xlauch.serializeForm($('#searchForm').form());
+        var _url="${ctxPath}/sys/sysParam/list";
+        $('#dataGrid').datagrid({
+            url : _url,
+            queryParams:_obj
+        });
+    }
+
+    /**
+     *清空搜索条件
+     */
+    function doClear() {
+        $('#searchForm').form('reset');
+        $('#dataGrid').datagrid('load', {});
+    }
+    /**
+     * 添加
+     */
+    function doAdd() {
+        xlauch.addRow({
+            title : "&nbsp;添加" ,
+            href : "${ctxPath}/sys/sysParam/addInit",
+            width : 930,
+            height: 300
+        });
+    }
+
+    /**
+     * 修改
+     */
+    function doEdit(r) {
+        var _row =  r || $("#dataGrid").datagrid('getSelections')[0];
+        if(_row.editable == 0) {
+            xlauch.alert("该参数不允许修改");
+            return ;
+        }
+
+        var p = xlauch.editRow({
+            title : '&nbsp;修改',
+            href : '${ctxPath}/sys/sysParam/editInit',
+            width : 930,
+            row : r ,
+            //isIframe: true ,
+            height: 530 ,
+            onLoad : function() {
+                var row = p.getRow() ;
+                var f = p.find('form');
+                f.form('load', row);
+                p.find("#OLD_V_NAME").val(row.name);
+            }
+        });
+    }
+
+    /**
+     * 删除
+     */
+    function doDelete() {
+        xlauch.deleteRow({
+            pk : 'id',
+            url: "${ctxPath}/sys/sysParam/delete"
+        });
+    }
+
+
+</script>
+
+</body>
+</html>

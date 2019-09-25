@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>导出参数</title>
+    <% layout("/inc/easyui.html"){} %>
+
+</head>
+<body>
+    <div id="tb">
+        <form id="searchForm" name="searchForm" style="margin: 0px; padding: 0px;" method="post">
+            <input type="hidden" name="expId" value="${expId}">
+            <table width="100%" class="sztable" align="center">
+                <tr>
+                    <td width="8%" align="right" class="sztabletext">名称:</td>
+                    <td width="20%" align="left"><input type="text" name="name" class="easyui-textbox" style="width: 150px"/></td>
+                    <td width="8%" align="right" class="sztabletext">标题:</td>
+                    <td width="20%" align="left"><input type="text" name="title" class="easyui-textbox" style="width: 150px"/></td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="sztabletext">
+                        <div style="float: left;">
+                            <a href="javascript:{doAdd()}" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
+                            <a href="javascript:{doEdit()}" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a>
+                            <a href="javascript:{doDelete()}" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+                        </div>
+                        <div style="float: right;">
+                            <a href="javascript:{doSearch()}" class="easyui-linkbutton" iconCls="icon-search" plain="true">查询</a>
+                            <a href="javascript:{doClear()}" class="easyui-linkbutton" iconCls="icon-redo" plain="true">清空</a>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <table id="dataGrid" style="width:auto;height:auto"></table>
+    <script type="text/javascript">
+        //初始化
+        $(function(){
+            $('#dataGrid').datagrid({
+                pagination:true,
+                fitColumns:true,
+                rownumbers:true,
+                fit:true,
+                pageSize:20,
+                pageList:[20,30,40,50],
+                columns:[[
+                    {field: 'paramId', checkbox: true},
+                    {field: 'name',title: '参数名', width: 130, align: 'center'},
+                    {field: 'title',title: '参数标题', width: 130, align: 'center'},
+                    {field: 'width',title: '显示宽度', width: 100, align: 'center'},
+                    {field: 'defalutValue',title: '默认值', width: 100, align: 'center'},
+                    {field: 'likeable',title: '模糊查询', width: 100, align: 'center', formatter: dict.yesOrNot},
+                    {field: 'likeType',title: '模糊查询类型', width: 100, align: 'center'},
+                    {field: 'dictable',title: '数据字典', width: 100, align: 'center', formatter: dict.yesOrNot},
+                    {field: 'dictType',title: '字典类型', width: 100, align: 'center'},
+                    {field: 'formType',title: '表单类型', width: 100, align: 'center'},
+                    {field: 'seq',title: '排序号', width: 100, align: 'center'},
+                    {field: 'form',title: '表单内容', width: 100, align: 'center', hidden: true},
+                    {field: 'sqlx',title: '参数查询语句', width: 100, align: 'center', hidden: true},
+                    {field: 'event',title: '触发事件', width: 100, align: 'center', hidden: true},
+                    {field: 'expId',title: '导出模板主键', width: 100, align: 'center', hidden: true}
+                ]],
+                onDblClickRow : function(rowIndex, rowData){
+                    doEdit(rowData) ;
+                }
+            });
+
+            doSearch();
+        });
+
+
+
+        /**
+         * 查询
+         */
+        function doSearch(){
+            var _obj = xlauch.serializeForm($('#searchForm').form());
+            var _url="${ctxPath}/deve/deveExpParam/list?expId=${expId}";
+            $('#dataGrid').datagrid({
+                url : _url,
+                queryParams:_obj
+            });
+        }
+
+        /**
+         *清空搜索条件
+         */
+        function doClear() {
+            $('#searchForm').form('reset');
+            $('#dataGrid').datagrid('load', {});
+        }
+        /**
+         * 添加
+         */
+        function doAdd() {
+            xlauch.addRow({
+                title : "&nbsp;添加" ,
+                href : "${ctxPath}/deve/deveExpParam/addInit?expId=${expId}",
+                width : 930,
+                height: 390
+            });
+        }
+
+        /**
+         * 修改
+         */
+        function doEdit(r) {
+            var p = xlauch.editRow({
+                title : '&nbsp;修改',
+                href : '${ctxPath}/deve/deveExpParam/editInit',
+                width : 930,
+                row : r ,
+                //isIframe: true ,
+                height: 390 ,
+                onLoad : function() {
+                    var row = p.getRow() ;
+                    var f = p.find('form');
+                    f.form('load', row);
+                    p.find("#OLD_V_NAME").val(row.name);
+                }
+            });
+        }
+
+        /**
+         * 删除
+         */
+        function doDelete() {
+            xlauch.deleteRow({
+                pk : 'paramId',
+                url: "${ctxPath}/deve/deveExpParam/delete"
+            });
+        }
+
+
+    </script>
+
+</body>
+</html>

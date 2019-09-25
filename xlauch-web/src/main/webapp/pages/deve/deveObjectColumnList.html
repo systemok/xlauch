@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>二次开发-模块管理--字段管理</title>
+    <% layout("/inc/easyui.html"){} %>
+
+    <script type="text/javascript">
+        ${initDict('yesornot,alignType,defaultValue')}
+    </script>
+
+</head>
+<body>
+    <div id="tb" >
+        <form id="searchForm" name="searchForm" style="margin: 0px; padding: 0px;" method="post">
+            <input type="hidden" name="methodId" value="${methodId}" />
+            <table width="100%" class="sztable" align="center">
+                <tr>
+                    <td width="8%" align="right" class="sztabletext">名称:</td>
+                    <td width="20%" align="left"><input type="text" name="ename" class="easyui-textbox"/></td>
+                    <td width="8%" align="right" class="sztabletext">标题:</td>
+                    <td width="20%" align="left"><input type="text" name="cname" class="easyui-textbox"/></td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="sztabletext">
+                        <div style="float: left;">
+                            <#shiroa href="javascript:{doAdd()}" iconCls="icon-add" permission="deveObjectEdit">添加</#shiroa>
+                            <#shiroa href="javascript:{doEdit()}" iconCls="icon-edit" permission="deveObjectEdit">修改</#shiroa>
+                            <#shiroa href="javascript:{doDelete()}" iconCls="icon-remove" permission="deveObjectEdit">删除</#shiroa>
+                        </div>
+                        <div style="float: right;">
+                            <a href="javascript:{doSearch()}" class="easyui-linkbutton" iconCls="icon-search" plain="true">查询</a>
+                            <a href="javascript:{doClear()}" class="easyui-linkbutton" iconCls="icon-redo" plain="true">清空</a>
+                        </div>
+                    </td>
+                </tr>
+                <%
+                    if(methodId == -1){
+                %>
+                <tr>
+                    <td colspan="6"  align="left">
+                        <span style="color: red;font-weight: bold">
+                            匹配规则：
+                            <div>&nbsp;&nbsp;&nbsp;&nbsp;1、预设字段与数据库字段名称相同</div>
+                            <div>&nbsp;&nbsp;&nbsp;&nbsp;2、预设字段备注无逗号分隔时：判断数据库备注是否包含预设备注或者预设备注是否包含数据库备注</div>
+                            <div>&nbsp;&nbsp;&nbsp;&nbsp;3、预设字段备注有逗号分隔时：判断数据库备注是否包含预设备注(按逗号分隔，循环判断)</div>
+                        </span>
+                    </td>
+                </tr>
+                <%
+                    }
+                %>
+            </table>
+        </form>
+    </div>
+
+    <table id="dataGrid" style="width:auto;height:auto"></table>
+    <script type="text/javascript">
+        //初始化
+        $(function(){
+            $('#dataGrid').datagrid({
+                pagination:true,
+                fitColumns:true,
+                rownumbers:true,
+                fit:true,
+                toolbar: '#tb',
+                pageSize:20,
+                pageList:[20,30,40,50],
+                columns:[[
+                    {field: 'columnId', checkbox: true},
+                    {field:'methodId',title:'方法id',width:120,align:'center',hidden:'true'},
+                    {field:'ename',title:'名称',width:120,align:'center'},
+                    {field:'cname',title:'标题',width:120,align:'center'},
+                    {field:'width',title:'宽度',width:120,align:'center'},
+                    {field:'defaultValue',title:'默认值',width:120,align:'center',formatter:_DICT.DEFAULTVALUE},
+                    {field:'seq',title:'序列',width:60,align:'center'},
+                    {field:'showAble',title:'是否显示',width:60,align:'center',formatter:_DICT.YESORNOT},
+                    {field:'frozenAble',title:'是否冻结',width:60,align:'center',formatter:_DICT.YESORNOT},
+                    {field:'orderAble',title:'是否排序',width:60,align:'center',formatter:_DICT.YESORNOT},
+                    {field:'dictAble',title:'字段转换',width:60,align:'center',formatter:_DICT.YESORNOT},
+                    {field:'dictStr',title:'字典对照',width:120,align:'center',hidden:'true'},
+                    {field:'align',title:'对齐方式',width:60,align:'center',formatter:_DICT.ALIGNTYPE},
+                    {field:'checkboxAble',title:'是否复选框',width:60,align:'center',formatter:_DICT.YESORNOT},
+                    {field:'css',title:'字段样式',width:120,align:'center',hidden:'true'},
+                    {field:'formatter',title:'格式化',width:120,align:'center',hidden:'true'},
+                    {field:'enent',title:'字段事件',width:120,align:'center',hidden:'true'}
+                    ]],
+                onDblClickRow : function(rowIndex, rowData){
+                    doEdit(rowData) ;
+                }
+            });
+            doSearch();
+        });
+
+
+
+        /**
+         * 查询
+         */
+        function doSearch(){
+            var _obj = xlauch.serializeForm($('#searchForm').form());
+            var _url="${ctxPath}/deve/deveObjectColumn/list";
+            $('#dataGrid').datagrid({
+                url : _url,
+                queryParams:_obj
+            });
+        }
+
+        /**
+         *清空搜索条件
+         */
+        function doClear() {
+            $('#searchForm').form('reset');
+            doSearch();
+        }
+        /**
+         * 添加
+         */
+        function doAdd() {
+            var p = xlauch.addRow({
+                title : "&nbsp;添加" ,
+                href : "${ctxPath}/deve/deveObjectColumn/addInit?methodId=${methodId}",
+                maximizable: true,
+                width : 930,
+                height: 650,
+                onClose : function(){
+                    p.dialog('destroy');
+                    doSearch();
+                }
+            });
+        }
+
+        /**
+         * 修改
+         */
+        function doEdit(r) {
+            var p = xlauch.editRow({
+                title : '&nbsp;修改',
+                href : '${ctxPath}/deve/deveObjectColumn/editInit',
+                width : 930,
+                row : r ,
+                //isIframe: true ,
+                height: 650 ,
+                onClose : function(){
+                    p.dialog('destroy');
+                    doSearch();
+                },
+                onLoad : function() {
+                    var row = p.getRow() ;
+                    var f = p.find('form');
+                    f.form('load', row);
+                    p.find("#OLD_V_NAME").val(row.name);
+                }
+            });
+        }
+
+        /**
+         * 删除
+         */
+        function doDelete() {
+            xlauch.deleteRow({
+                pk : 'columnId',
+                url: "${ctxPath}/deve/deveObjectColumn/delete"
+            });
+        }
+
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,146 @@
+<form style="margin: 0px;padding: 0px;"  method="post" >
+    <input type="hidden" name="paramId" />
+    <input type="hidden" id="expId" name="expId" value="${expId}" />
+    <table width="100%" class="sztable" align="center">
+        <tr>
+            <td class="sztabletext" width="20%">参数名</td>
+            <td width="30%">
+                <input id="name" name="name" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20"
+                       data-options="required:true"/>
+            </td>
+            <td class="sztabletext" width="20%">参数标题</td>
+            <td width="30%">
+                <input name="title" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20"
+                       data-options="required:true"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">显示宽度</td>
+            <td width="30%">
+                <input id="width" name="width" type="text"  style="width:200px;"
+                       class="easyui-numberbox"  maxLength="3" value="200"
+                       data-options="required:true"/>
+            </td>
+            <td class="sztabletext" width="20%">表单类型</td>
+            <td width="30%">
+                <select class="easyui-combobox" id="formType"  name="formType" style="width: 200px" editable="false" >
+                    <option value="text" selected>文本框</option>
+                    <option value="datebox">日期格式</option>
+                    <option value="datetimebox">时间格式</option>
+                    <option value="select">下拉框</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">是否数据字典</td>
+            <td width="30%">
+                <select class="easyui-combobox"  id="dictable" name="dictable" style="width: 200px" editable="false" >
+                    <option value="1">是</option>
+                    <option value="0" selected>否</option>
+                </select>
+            </td>
+            <td class="sztabletext" width="20%">数据字典类型</td>
+            <td width="30%">
+                <input id="dictType" name="dictType" type="text"  style="width:200px;"
+                       class="easyui-textbox"
+                       data-options="maxLength:20"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">是否模糊查询</td>
+            <td width="30%">
+                <select class="easyui-combobox" id="likeable" name="likeable" style="width: 200px" editable="false" >
+                    <option value="1" selected>是</option>
+                    <option value="0">否</option>
+                </select>
+            </td>
+            <td class="sztabletext" width="20%">模糊类型</td>
+            <td width="30%">
+                <select class="easyui-combobox" id="likeType" name="likeType" style="width: 200px" editable="false" >
+                    <option value="full" selected>全模糊</option>
+                    <option value="left">左模糊</option>
+                    <option value="right">右模糊</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">默认值</td>
+            <td width="30%">
+                <input id="defalutValue" name="defalutValue" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20" />
+            </td>
+            <td class="sztabletext" width="20%">排序号</td>
+            <td width="30%">
+                <input name="seq" type="text"  style="width:200px;" value="1"
+                       class="easyui-numberbox"  maxLength="3" />
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">表单内容</td>
+            <td colspan="3">
+                <input id="form" name="form" type="text" style="width: 650px;height:40px;"
+                       class="easyui-textbox"  data-options="multiline:true,required:true" />
+                <a href="javascript:{generForm()}" class="easyui-linkbutton" iconCls="icon-add" plain="true">生成</a>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">参数查询语句</td>
+            <td colspan="3">
+                <input id="sqlx" name="sqlx" type="text" style="width: 650px;height:40px;"
+                       class="easyui-textbox"   data-options="multiline:true,required:true" />
+                <a href="javascript:{generSQL()}" class="easyui-linkbutton" iconCls="icon-add" plain="true">生成</a>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">触发事件</td>
+            <td colspan="3">
+                <input name="event" type="text" style="width: 650px;height:75px;"
+                       class="easyui-textbox"   data-options="multiline:true" />
+            </td>
+        </tr>
+    </table>
+</form>
+
+<script>
+
+    /**
+     * 显示表单
+     */
+    function generForm(){
+        var _str = "";
+        var name = $("#name").val();
+        var width = $("#width").val();
+        var formtype = $("#formType").val() || "text";
+        var defalutValue = $("#defalutValue").val();
+        var event = $("#event").val();
+
+
+        if(formtype == "text") {
+            _str = '<input name="'+ name + '" style="width: '+ width + 'px" value="'+defalutValue+'" class="easyui-textbox" />' ;
+        }else if(formtype == "datebox") {
+            _str = '<input name="'+ name + '" style="width: '+ width + 'px" value="'+defalutValue+'" class="easyui-datebox" editable="false"/>' ;
+        }else if(formtype == "datetimebox") {
+            _str = '<input name="'+ name + '" style="width: '+ width + 'px" value="'+defalutValue+'" class="easyui-datetimebox"  editable="false"/>' ;
+        }else if(formtype == "select") {
+            _str = '<select class="easyui-combobox" name="'+ name + '" style="width: '+ width + 'px" editable="false" ><option value="" >请选择</option></select>' ;
+        }
+
+        $("#form").textbox('setValue', _str);
+    }
+
+    /**
+     * 生成查询SQL
+     */
+    function generSQL() {
+        var name = $("#name").val();
+        var likeable = $("#likeable").val() == 1;
+        var _str = "and " + name + " = ? " ;
+        if(likeable) {
+            _str = "and " + name + " like ? ";
+        }
+        $("#sqlx").textbox('setValue', _str);
+    }
+
+</script>

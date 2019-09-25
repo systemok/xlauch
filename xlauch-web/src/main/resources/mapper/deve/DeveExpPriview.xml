@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xlauch.web.mapper.deve.DeveExpPriviewMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.xlauch.web.entity.deve.DeveExpPriview">
+		<id column="priview" property="priview" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        priview
+    </sql>
+
+
+    <!-- 列表分页查询 -->
+    <select id="selectDeveExpPriviewList"  parameterType="java.util.Map" resultMap="BaseResultMap">
+		select
+		     t.priview
+		from
+			t_deve_exp_priview as t
+        <where>
+
+        </where>
+    </select>
+
+</mapper>

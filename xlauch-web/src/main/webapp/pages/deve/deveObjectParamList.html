@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>二次开发-导出参数管理</title>
+    <% layout("/inc/easyui.html"){} %>
+    <script type="text/javascript">
+        ${initDict('yesornot,likeType')}
+    </script>
+
+</head>
+<body>
+    <div id="tb" >
+        <form id="searchForm" name="searchForm" style="margin: 0px; padding: 0px;" method="post">
+            <input type="hidden" name="methodId" value="${methodId}" />
+            <table width="100%" class="sztable" align="center">
+                <tr>
+                    <td width="8%" align="right" class="sztabletext">名称:</td>
+                    <td width="20%" align="left"><input type="text" name="ename" class="easyui-textbox"/></td>
+                    <td width="8%" align="right" class="sztabletext">标题:</td>
+                    <td width="20%" align="left"><input type="text" name="cname" class="easyui-textbox"/></td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="sztabletext">
+                        <div style="float: left;">
+                            <#shiroa href="javascript:{doAdd()}" iconCls="icon-add" permission="deveObjectParamAdd">添加</#shiroa>
+                            <#shiroa href="javascript:{doEdit()}" iconCls="icon-edit" permission="deveObjectParamEdit">修改</#shiroa>
+                            <#shiroa href="javascript:{doDelete()}" iconCls="icon-remove" permission="deveObjectParamDelete">删除</#shiroa>
+                        </div>
+                        <div style="float: right;">
+                            <a href="javascript:{doSearch()}" class="easyui-linkbutton" iconCls="icon-search" plain="true">查询</a>
+                            <a href="javascript:{doClear()}" class="easyui-linkbutton" iconCls="icon-redo" plain="true">清空</a>
+                        </div>
+                    </td>
+                </tr>
+                <%
+                if(methodId == -1){
+                %>
+                <tr>
+                    <td colspan="6"  align="left">
+                        <span style="color: red;font-weight: bold">
+                            匹配规则：
+                            <div>&nbsp;&nbsp;&nbsp;&nbsp;1、预设参数字段名包含数据库字段名，或者数据库备注包含预设参数中文名</div>
+                        </span>
+                    </td>
+                </tr>
+                <%
+                }
+                %>
+            </table>
+        </form>
+    </div>
+
+    <table id="dataGrid" style="width:auto;height:auto"></table>
+    <script type="text/javascript">
+        //初始化
+        $(function(){
+            $('#dataGrid').datagrid({
+                pagination:true,
+                fitColumns:true,
+                rownumbers:true,
+                fit:true,
+                toolbar: '#tb',
+                pageSize:20,
+                pageList:[20,30,40,50],
+                columns:[[
+                    {field: 'paramId', checkbox: true},
+                    {field: 'methodId',title:'方法主键',width:120,align:'center', hidden: true},
+                    {field: 'ename',title:'参数名',width:130,align:'center'},
+                    {field: 'cname',title:'参数标题',width:130,align:'center'},
+                    {field: 'width',title:'显示宽度',width:100,align:'center'},
+                    {field: 'likeAble',title:'模糊查询',width:100,align:'center',formatter:_DICT.YESORNOT},
+                    {field: 'likeType',title: '模糊查询类型', width: 100, align: 'center',formatter:_DICT.LIKETYPE},
+                    {field: 'dictAble',title: '数据字典', width: 100, align: 'center',formatter:_DICT.YESORNOT},
+                    {field: 'dictType',title: '字典类型', width: 100, align: 'center'},
+                    {field: 'formType',title: '表单类型', width: 100, align: 'center'},
+                    {field: 'seq',title: '排序号', width: 100, align: 'center'},
+                    {field: 'formStr',title: '表单内容', width: 100, align: 'center', hidden: true},
+                    {field: 'sqlx',title: '参数查询语句', width: 100, align: 'center', hidden: true},
+                    {field: 'event',title: '触发事件', width: 100, align: 'center', hidden: true},
+                    {field: 'defaultValue',title:'默认值',width:120,align:'center'}
+                ]],
+                onDblClickRow : function(rowIndex, rowData){
+                    doEdit(rowData) ;
+                }
+            });
+            doSearch();
+        });
+
+
+
+        /**
+         * 查询
+         */
+        function doSearch(){
+            var _obj = xlauch.serializeForm($('#searchForm').form());
+            var _url="${ctxPath}/deve/deveObjectParam/list";
+            $('#dataGrid').datagrid({
+                url : _url,
+                queryParams:_obj
+            });
+        }
+
+        /**
+         *清空搜索条件
+         */
+        function doClear() {
+            $('#searchForm').form('reset');
+            doSearch();
+        }
+        /**
+         * 添加
+         */
+        function doAdd() {
+            var p = xlauch.addRow({
+                title : "&nbsp;添加" ,
+                href : "${ctxPath}/deve/deveObjectParam/addInit?methodId=${methodId}",
+                width : 930,
+                height: 390,
+                onClose : function(){
+                    p.dialog('destroy');
+                    doSearch();
+                }
+            });
+        }
+
+        /**
+         * 修改
+         */
+        function doEdit(r) {
+            var p = xlauch.editRow({
+                title : '&nbsp;修改',
+                href : '${ctxPath}/deve/deveObjectParam/editInit',
+                width : 930,
+                row : r ,
+                //isIframe: true ,
+                height: 390 ,
+                onClose : function(){
+                    p.dialog('destroy');
+                    doSearch();
+                },
+                onLoad : function() {
+                    var row = p.getRow() ;
+                    var f = p.find('form');
+                    f.form('load', row);
+                }
+            });
+        }
+
+        /**
+         * 删除
+         */
+        function doDelete() {
+            xlauch.deleteRow({
+                pk : 'paramId',
+                url: "${ctxPath}/deve/deveObjectParam/delete"
+            });
+        }
+
+
+    </script>
+
+</body>
+</html>

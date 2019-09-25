@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>二次开发--模块管理--模块方法表</title>
+    <% layout("/inc/easyui.html"){} %>
+    <script type="text/javascript">
+        ${initDict('iconPosition,status,yesornot,showType')}
+    </script>
+
+</head>
+<body>
+    <div id="tb" >
+        <form id="searchForm" name="searchForm" style="margin: 0px; padding: 0px;" method="post">
+            <input type="hidden" name="objId" value="${objId}" />
+            <table width="100%" class="sztable" align="center">
+                <tr>
+                    <td width="8%" align="right" class="sztabletext">方法名称:</td>
+                    <td width="20%" align="left"><input type="text" name="name" class="easyui-textbox"/></td>
+                    <td width="8%" align="right" class="sztabletext">状态:</td>
+                    <td width="20%" align="left">
+                        <#dictTag name="status" showType="select" dictCode="status" width="200" ></#dictTag>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="sztabletext">
+                        <div style="float: left;">
+                            <#shiroa href="javascript:{doAdd()}" iconCls="icon-add" permission="deveObjectEdit">添加</#shiroa>
+                            <#shiroa href="javascript:{doEdit()}" iconCls="icon-edit" permission="deveObjectEdit">修改</#shiroa>
+                            <#shiroa href="javascript:{doDelete()}" iconCls="icon-remove" permission="deveObjectEdit">删除</#shiroa>
+                        </div>
+                        <div style="float: right;">
+                            <a href="javascript:{doSearch()}" class="easyui-linkbutton" iconCls="icon-search" plain="true">查询</a>
+                            <a href="javascript:{doClear()}" class="easyui-linkbutton" iconCls="icon-redo" plain="true">清空</a>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <table id="dataGrid" style="width:auto;height:auto"></table>
+    <script type="text/javascript">
+        //初始化
+        $(function(){
+            $('#dataGrid').datagrid({
+                pagination:true,
+                fitColumns:true,
+                rownumbers:true,
+                fit:true,
+                toolbar: '#tb',
+                pageSize:20,
+                pageList:[20,30,40,50],
+                columns:[[
+                    {field: 'methodId', checkbox: true},
+                    {field:'iconPath',title:'方法名称',width:120,align:'left',halign:'center',
+                        formatter: function (value, row, index) {
+                            if(value){
+                                var _str = '<span class="l-btn-left l-btn-icon-left"><span class="l-btn-text">'+ row.name + '</span>';
+                                _str += '<span class="l-btn-icon '+ row.icon +'"> </span></span>'
+                                return _str ;
+                            }
+                        }
+                    },
+                    {field:'code',title:'方法编码',width:120,align:'center'},
+                    {field:'name',title:'方法名称',width:120,align:'center',hidden:true},
+                    {field:'icon',title:'按钮图标',width:120,align:'center',hidden:true},
+
+                    {field:'iconPosition',title:'图标位置',width:120,align:'center',formatter:_DICT.ICONPOSITION},
+                    {field:'status',title:'状态',width:120,align:'center',formatter:_DICT.STATUS},
+                    {field:'methodType',title:'保存方法（新增 ADD、修改 EDIT、删除 DEL、查询 QUERY）',width:120,align:'center',hidden:true},
+                    {field:'showType',title:'展示方式',width:120,align:'center',formatter:_DICT.SHOWTYPE},
+                    {field:'fitCloumn',title:'字段自适应',width:120,align:'center',formatter:_DICT.YESORNOT,hidden:true},
+                    {field:'width',title:'显示宽度',width:120,align:'center'},
+                    {field:'height',title:'显示高度',width:120,align:'center'},
+                    {field:'seq',title:'排序',width:120,align:'center'},
+                    {field:'msg',title:'提示内容',width:120,align:'center',hidden:true},
+                    {field:'pagePath',title:'页面生成目录',width:120,align:'center',hidden:true},
+                    {field:'defaultMethod',title:'默认方法',width:120,align:'center',formatter:_DICT.YESORNOT},
+                    {field:'viewSql',title:'视图SQL',width:120,align:'center',hidden:true},
+                    {field:'objId',title:'对象ID id为-1时，表示该方法为系统预设方法',width:120,align:'center',hidden:true},
+
+                    {field:'defaultOrder',title:'默认排序字段',width:120,align:'center',hidden:true},
+                    {field:'orderType',title:'排序方式',width:120,align:'center',hidden:true},
+                    {field:'singleAble',title:'是否单选',width:120,align:'center',formatter:_DICT.YESORNOT,hidden:true},
+                    {field:'firstLoad',title:'初始加载',width:120,align:'center',formatter:_DICT.YESORNOT,hidden:true},
+                    {field:'diyJs',title:'依赖JS文件',width:120,align:'center',hidden:true},
+                    {field:'viewSql',title:'视图SQL',width:120,align:'center',hidden:true},
+                    {field:'initDict',title:'初始字典',width:120,align:'center',hidden:true},
+
+                    {field:'note',title:'描述',width:120,align:'center',hidden:true}
+                    ]],
+                onDblClickRow : function(rowIndex, rowData){
+                    doEdit(rowData) ;
+                }
+            });
+            doSearch();
+        });
+
+
+
+        /**
+         * 查询
+         */
+        function doSearch(){
+            var _obj = xlauch.serializeForm($('#searchForm').form());
+            var _url="${ctxPath}/deve/deveObjectMethod/list";
+            $('#dataGrid').datagrid({
+                url : _url,
+                queryParams:_obj
+            });
+        }
+
+        /**
+         *清空搜索条件
+         */
+        function doClear() {
+            $('#searchForm').form('reset');
+            doSearch();
+        }
+        /**
+         * 添加
+         */
+        function doAdd() {
+            var p = xlauch.addRow({
+                title : '&nbsp;新增方法',
+                href : "${ctxPath}/deve/deveObjectMethod/addMainInit?objId=${objId}",
+                isIframe : true,
+                maximizable : true,
+                hiddenButton : true,
+                width : 1000,
+                height : 530,
+                onClose : function() {
+                    doSearch();
+                }
+            });
+        }
+
+        /**
+         * 修改
+         */
+        function doEdit(r) {
+            var row = xlauch.editRowCheck("dataGrid" , r);
+            var p = xlauch.editRow({
+                title : '&nbsp;修改',
+                href : "${ctxPath}/deve/deveObjectMethod/editMainInit?methodId=" + row.methodId,
+                row : row,
+                isIframe: true ,
+                maximizable : true,
+                hiddenButton : true,
+                width : 1000,
+                height : 530,
+                onClose : function() {
+                    doSearch();
+                }
+            });
+        }
+
+        /**
+         * 删除
+         */
+        function doDelete() {
+            xlauch.deleteRow({
+                pk : 'methodId',
+                url: "${ctxPath}/deve/deveObjectMethod/delete"
+            });
+        }
+
+
+    </script>
+
+</body>
+</html>

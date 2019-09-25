@@ -1,0 +1,43 @@
+<form class="formstyle" method="post" action="${ctxPath}/jee_deve_quartz!add.shtml">
+    <input type="hidden" name="ID">
+    <table width="100%" class="sztable" align="center">
+        <tr>
+            <td class="sztabletext" width="20%">任务名称<span style="color: red;font-weight: bold;">*</span></td>
+            <td colspan="3">
+                <input type='text' name='jobName'  style='width:645px' id="jobName"
+                       class="easyui-textbox easyui-validatebox" data-options="required:true">
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">执行类<span style="color: red;font-weight: bold;">*</span></td>
+            <td colspan="3">
+                <input type='text' name='className' style='width:645px;' id='className'
+                       class="easyui-textbox easyui-validatebox" data-options="required:true"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">Corn表达式<span style="color: red;font-weight: bold;">*</span></td>
+            <td colspan="3">
+                <input type='text' name='cronExpression' style='width:645px;'
+                       class="easyui-textbox easyui-validatebox" data-options="required:true"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">开始时间<span style="color: red;font-weight: bold;">*</span></td>
+            <td width="30%">
+                <input type='text' name='beginTime' class='easyui-datetimebox' style='width:180' data-options="required:true" ></jee>
+            </td>
+            <td class="sztabletext" width="20%">结束时间</td>
+            <td width="30%">
+                <input type='text' name='endTime' class='easyui-datetimebox' style='width:180' ></jee>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="sztabletext" width="20%">描述</td>
+            <td colspan="3">
+                <input type='text' name='desc' class="easyui-textbox" style='width:645px;'  />
+            </td>
+        </tr>
+    </table>
+</form>

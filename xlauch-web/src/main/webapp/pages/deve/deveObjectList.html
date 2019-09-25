@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>二次开发-对象表</title>
+    <% layout("/inc/easyui.html"){} %>
+    <script type="text/javascript">
+        //初始化数据字典
+        ${initDict('yesornot,dataSource,dataType,status')}
+    </script>
+
+</head>
+<body>
+    <div id="tb" >
+        <form id="searchForm" name="searchForm" style="margin: 0px; padding: 0px;" method="post">
+            <table width="100%" class="sztable" align="center">
+                <tr>
+                    <td width="8%" align="right" class="sztabletext">对象编码:</td>
+                    <td width="20%" align="left"><input type="text" name="code" class="easyui-textbox"/></td>
+                    <td width="8%" align="right" class="sztabletext">对象名:</td>
+                    <td width="20%" align="left"><input type="text" name="name" class="easyui-textbox"/></td>
+                    <td width="8%" align="right" class="sztabletext">数据源:</td>
+                    <td width="20%" align="left">
+                        <#dictTag name="dataSource" showType="select" dictCode="dataSource" width="200"  ></#dictTag>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="sztabletext">
+                        <div style="float: left;">
+                            <#shiroa href="javascript:{doAdd()}" iconCls="icon-add" permission="deveObjectAdd">添加</#shiroa>
+                            <#shiroa href="javascript:{doEdit()}" iconCls="icon-edit" permission="deveObjectEdit">修改</#shiroa>
+                            <#shiroa href="javascript:{doEditMethod()}" iconCls="xlauch-edit" permission="deveObjectEdit">方法管理</#shiroa>
+                            <#shiroa href="javascript:{doPreview()}" iconCls="xlauch-priview1" permission="deveObjectPriview">预览</#shiroa>
+                            <#shiroa href="javascript:{doPreview2()}" iconCls="xlauch-priview1" permission="deveObjectPriview">预览（弹窗）</#shiroa>
+                            <#shiroa href="javascript:{doDelete()}" iconCls="icon-remove" permission="deveObjectDelete">删除</#shiroa>
+                        </div>
+                        <div style="float: right;">
+                            <a href="javascript:{doSearch()}" class="easyui-linkbutton" iconCls="icon-search" plain="true">查询</a>
+                            <a href="javascript:{doClear()}" class="easyui-linkbutton" iconCls="icon-redo" plain="true">清空</a>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <table id="dataGrid" style="width:auto;height:auto"></table>
+    <script type="text/javascript">
+        //初始化
+        $(function(){
+            $('#dataGrid').datagrid({
+                pagination:true,
+                fitColumns:true,
+                rownumbers:true,
+                fit:true,
+                toolbar: '#tb',
+                pageSize:20,
+                pageList:[20,30,40,50],
+                frozenColumns:[[
+
+                ]],
+                columns:[[
+                    {field: 'objId', checkbox: true},
+                    {field:'code',title:'对象编码',width:200,align:'center'},
+                    {field:'name',title:'对象名称',width:200,align:'center'},
+                    {field:'dbName',title:'元数据',width:180,align:'center'},
+                    {field:'type',title:'类型',width:120,align:'center',formatter:_DICT.DATATYPE},
+                    {field:'pkName',title:'主键',width:150,align:'center'},
+                    {field:'dataSource',title:'数据源',width:120,align:'center',formatter:_DICT.DATASOURCE},
+                    {field:'status',title:'状态',width:120,align:'center',formatter:_DICT.STATUS},
+                    {field:'addTime',title:'添加时间',width:120,align:'center',hidden:true}
+                ]],
+                onDblClickRow : function(rowIndex, rowData){
+                    doEdit(rowData) ;
+                }
+            });
+            doSearch();
+        });
+
+
+
+        /**
+         * 查询
+         */
+        function doSearch(){
+            var _obj = xlauch.serializeForm($('#searchForm').form());
+            var _url="${ctxPath}/deve/deveObject/list";
+            $('#dataGrid').datagrid({
+                url : _url,
+                queryParams:_obj
+            });
+        }
+
+        /**
+         *清空搜索条件
+         */
+        function doClear() {
+            $('#searchForm').form('reset');
+            $('#dataGrid').datagrid('load', {});
+        }
+        /**
+         * 添加
+         */
+        function doAdd() {
+            xlauch.addRow({
+                title : "&nbsp;添加" ,
+                href : "${ctxPath}/deve/deveObject/addInit",
+                width : 930,
+                height: 200
+            });
+        }
+
+        /**
+         * 修改
+         */
+        function doEdit(r) {
+            var p = xlauch.editRow({
+                title : '&nbsp;修改',
+                href : '${ctxPath}/deve/deveObject/editInit',
+                width : 930,
+                row : r ,
+                //isIframe: true ,
+                height: 200 ,
+                onLoad : function() {
+                    var row = p.getRow() ;
+                    var f = p.find('form');
+                    p.find("#old_code").val(row.code);
+                    f.form('load', row);
+                }
+            });
+        }
+
+        /**
+         * 方法管理
+         */
+        function doEditMethod() {
+            var row = xlauch.editRowCheck("dataGrid");
+            if(row) {
+                var p = xlauch.editRow({
+                    title: '&nbsp;"' + row.name + '"方法管理',
+                    href: '${ctxPath}/deve/deveObjectMethod/listInit?objId=' + row.objId,
+                    isIframe: true,
+                    width: 1000,
+                    height: 550,
+                    maximizable: true,
+                    resizable: true,
+                    buttons: [{
+                        text: "关闭",
+                        iconCls: "icon-remove",
+                        handler: function () {
+                            p.dialog('close');
+                        }
+                    }]
+                });
+            }
+        }
+
+        /**
+         * 删除
+         */
+        function doDelete() {
+            xlauch.deleteRow({
+                pk : 'objId',
+                url: "${ctxPath}/deve/deveObject/delete"
+            });
+        }
+
+        /**
+         * 预览
+         */
+        function doPreview() {
+            var row = xlauch.editRowCheck("dataGrid");
+            if(row){
+                var p = xlauch.editRow({
+                    title : '&nbsp;"'+row.name+'"预览',
+                    href : '${ctxPath}/deve/deveObjectPriview/listInit?isDebug=true&_DEVE_OBJCODE='+row.code,
+                    isIframe: true ,
+                    width : 1000,
+                    height : 550,
+                    maximizable :true,
+                    resizable:true,
+                    buttons : [{
+                        text:"关闭",
+                        iconCls:"icon-remove",
+                        handler : function(){
+                            p.dialog('close');
+                        }
+                    }]
+                });
+            }
+        }
+
+        function doPreview2() {
+            var row = xlauch.editRowCheck("dataGrid");
+            if(row){
+                window.open('${ctxPath}/deve/deveObjectPriview/listInit?isDebug=true&_DEVE_OBJCODE='+row.code);
+            }
+        }
+
+    </script>
+
+</body>
+</html>

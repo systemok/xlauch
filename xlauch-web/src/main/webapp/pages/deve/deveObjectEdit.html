@@ -1,0 +1,103 @@
+<form style="margin: 0px;padding: 0px;" id="editForm"  method="post" >
+    <input type="hidden" name="objId" id="objId" />
+    <input type="hidden" name="old_code" id="old_code" />
+    <table width="100%" class="sztable" align="center">
+        <tr>
+            <td class="sztabletext" width="20%">对象编码:</td>
+            <td width="30%">
+                <input id="code" name="code" type="text"  style="width:200px;" prompt="请填写编码"
+                       class="easyui-textbox"  maxLength="20"
+                       data-options="required:true,
+                    validType:[
+                        'remoteEdit[\'${ctxPath}/deve/deveObject/codeCheck\',\'code\',\'#old_code\']'
+                    ]"/>
+            </td>
+            <td class="sztabletext" width="20%">对象名称:</td>
+            <td width="30%">
+                <input name="name" type="text"  style="width:200px;" prompt="请填写名称"
+                       class="easyui-textbox"  maxLength="20"
+                       data-options="required:true"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">数据源:</td>
+            <td width="30%">
+                <#dictTag name="dataSource" showType="select" showNull="false" dictCode="dataSource" width="200" dataOptions="onChange:queryMetaData,disabled:true" ></#dictTag>
+            </td>
+            <td class="sztabletext" width="20%">类型:</td>
+            <td width="30%">
+                <#dictTag name="type" showType="select" showNull="false" dictCode="dataType" width="200" dataOptions="onChange:queryMetaData,disabled:true"></#dictTag>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">数据库对象:</td>
+            <td width="30%">
+                <input id="dbName" name="dbName"  />
+            </td>
+            <td class="sztabletext" width="20%">主键:</td>
+            <td width="30%">
+                <input id="pkName" name="pkName" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20" disabled="true"
+                       data-options="required:true"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">状态:</td>
+            <td width="30%">
+                <#dictTag name="status" showType="radio" dictCode="status" width="200" value="1" ></#dictTag>
+            </td>
+        </tr>
+    </table>
+    <script type="text/javascript" >
+        var _url = '${ctxPath}/deve/deveObject/listDB';
+        $(function(){
+            //初始化元数据
+            $("#dbName").combogrid({
+                width:200,
+                panelWidth:650,
+                idField:'name',
+                textField:'name',
+                disabled:true,
+                required: true,
+                value : 't_deve_object',
+                url : _url ,
+//                url:'${ctxPath}/deve/deveObject/listDB',
+                columns:[[
+                    {field:'name',title:'名称',width:200},
+                    {field:'type',title:'类型',width:200},
+                    {field:'pkName',title:'主键',width:200}
+                ]],
+                filter: function(q, row){
+                    var opts = $(this).combogrid('options');
+                    return row[opts.textField].indexOf(q) == 0;
+                },
+                onSelect: function (index, row) {
+                    $("#pkName").textbox("setValue",row.pkName || "无");
+                    if (!$("#code").textbox("getValue")){
+                        $("#code").textbox("setValue",row.name);
+                    }
+                }
+            });
+        });
+
+        var _initCount = 0 ;
+        function queryMetaData() {
+            var _dataSouce = $("#dataSource").combobox("getValue");
+            var _dataType = $("#type").combobox("getValue");
+            $('#dbName').combogrid({
+                url : _url,
+                queryParams: {
+                    dataSource:_dataSouce,
+                    type : _dataType
+                }
+            });
+
+            if (_initCount++ > 1) {
+                $('#dbName').combogrid("clear");
+                $("#pkName").textbox("clear");
+            }
+        }
+
+
+    </script>
+</form>

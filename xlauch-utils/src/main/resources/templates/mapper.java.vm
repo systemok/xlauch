@@ -1,0 +1,27 @@
+package ${package.Mapper};
+
+import com.baomidou.mybatisplus.plugins.Page;
+import ${superMapperClassPackage};
+import ${package.Entity}.${entity};
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * <p>
+ *  类描述: $!{table.comment} Mapper 接口
+ * </p>
+ * @author ${author}
+ * @since ${date}
+ * @version 0.1
+ */
+public interface ${table.mapperName} extends ${superMapperClass}<${entity}> {
+
+    /**
+     * 列表分页查询
+     * @param page
+     * @param paramMap
+     * @return
+     */
+    List<${entity}> select${entity}List(Page<${entity}> page, Map paramMap);
+}

@@ -1,0 +1,80 @@
+<script type="text/javascript">
+    $(function(){
+        //顶部导航切换
+        // 点击顶部导航切换和获取菜单
+        $(".nav li a").click(function(){
+
+            // 切换
+            $(".nav li a.selected").removeClass("selected")
+            $(this).addClass("selected");
+            var href = $(this).data("href");
+
+            // 获取左侧菜单
+            $("body").layout("panel","west").panel({
+                href:href,
+                loadingMessage:"加载菜单中",
+                onLoad:function(){
+                    // 默认显示第一栏菜单
+                    //$(".has-sub>a").eq(0).trigger("click");
+                }
+            });
+        }).eq(0).trigger("click"); // 顶部导航默认触发第一个
+    });
+
+    /**
+     * 退出
+     */
+    function doLogout(){
+        jee.confirm('您确认要退出？',function () {
+            parent.location.href = jee.getpn() + "/jee_bus_login!loginOut.shtml" ;
+        });
+    }
+
+    function changeTheme(){
+        jee.changeTheme("gray");
+    }
+
+
+    function gotoSysconfig(){
+        $.fn.zTree.getZTreeObj("iframeleftmenuTree").expandAll(false);
+    }
+
+</script>
+<div class="topleft">
+    <a href="${ctxPath}/main.html" target="_parent"><img src="${ctxPath}/login/images/logo.png" title="系统首页" /></a>
+</div>
+
+<ul class="nav">
+    <%
+    for(topMenu in topMenuList){
+    %>
+    <li><a data-href="${ctxPath}/left?parentId=${topMenu.id}" target="west" class="selected"><img src="${ctxPath}${topMenu.icon}" title="${topMenu.name}" /><h2>${topMenu.name}</h2></a></li>
+    <%
+    }
+    %>
+    <!--<li><a data-href="${ctxPath}/left" target="west" class="selected"><img src="${ctxPath}/login/images/icon01.png" title="工作台" /><h2>工作台</h2></a></li>-->
+    <!--<li><a data-href="${ctxPath}/left?parentId=22" target="west"><img src="${ctxPath}/login/images/icon02.png" title="模型管理" /><h2>模型管理</h2></a></li>-->
+    <!--<li><a data-href="imglist.html"  target="rightFrame"><img src="${ctxPath}/login/images/icon03.png" title="模块设计" /><h2>模块设计</h2></a></li>-->
+    <!--<li><a data-href="tools.html"  target="rightFrame"><img src="${ctxPath}/login/images/icon04.png" title="常用工具" /><h2>常用工具</h2></a></li>-->
+    <!--<li><a data-href="computer.html" target="rightFrame"><img src="${ctxPath}/login/images/icon05.png" title="文件管理" /><h2>文件管理</h2></a></li>-->
+    <!--<li><a data-href="javascript:void(0);" onclick="gotoSysconfig()"  target="rightFrame"><img src="${ctxPath}/login/images/icon06.png" title="系统设置" /><h2>系统设置</h2></a></li>-->
+</ul>
+
+<div class="topright">
+    <ul>
+        <li>
+            <span><img src="${ctxPath}/login/images/help.png" title="帮助"  class="helpimg"/></span>
+            <a href="javascript:void(0);" onclick="doHelp()">帮助</a>
+        </li>
+        <li style="cursor:pointer;">
+            <a href="javascript:void(0);"  onclick="changeTheme()" ><span id="menuSpan" style="cursor:pointer;">隐藏菜单</span></a>
+        </li>
+        <li><a href="${ctxPath}/logout" target="_parent">退出</a></li>
+    </ul>
+
+    <div class="user">
+        <span>${userName}</span>
+        <i>消息</i>
+        <b>5</b>
+    </div>
+</div>

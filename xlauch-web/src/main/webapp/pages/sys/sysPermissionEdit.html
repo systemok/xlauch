@@ -1,0 +1,132 @@
+<div class="easyui-layout" style="height: 100%">
+    <div data-options="region:'west',split:true,title:'选择父节点'" style="width:200px;">
+        <ul id="addmenuTree" class="ztree" style=""></ul>
+    </div>
+    <div data-options="region:'center'" style="padding:5px;">
+        <form style="margin: 0px;padding: 0px;"  method="post" >
+            <table width="100%" class="sztable" align="center">
+                <tr>
+                    <input type="hidden" name="permissionId" />
+                </tr>
+                <tr>
+                    <td class="sztabletext" width="20%">父节点</td>
+                    <td width="30%">
+                        <input type="hidden" id="parentPid" name="parentPid" />
+                        <input id="parentName" name="parentName" type="text"  style="width:200px;" readonly="readonly"
+                               class="easyui-textbox"  maxLength="20"
+                               data-options="required:true"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sztabletext" width="20%">权限名</td>
+                    <td width="30%">
+                        <input name="name" type="text"  style="width:200px;"
+                               class="easyui-textbox"  maxLength="20"
+                               data-options="required:true"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sztabletext" width="20%">权限编码</td>
+                    <td width="30%">
+                        <input name="permissionCode" type="text"  style="width:200px;"
+                               class="easyui-textbox"  maxLength="20"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sztabletext" width="20%">权限类型</td>
+                    <td width="30%">
+                        <#dictTag name="permissionType" showType="radio" dictCode="permissionType" width="200" value="1"></#dictTag>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sztabletext" width="20%">url</td>
+                    <td width="30%">
+                        <input name="url" type="text"  style="width:200px;"
+                               class="easyui-textbox"  maxLength="20"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sztabletext" width="20%">图标</td>
+                    <td width="30%">
+                        <input id="icon" name="icon" readonly="readonly" type="text"  style="width:200px;"
+                               class="easyui-textbox"  maxLength="20"/>
+                        <a href="#" class="easyui-linkbutton" onclick="javascript:chooseIcon()">选择</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sztabletext" width="20%">排序</td>
+                    <td width="30%">
+                        <input name="sortOrder" type="text"  style="width:200px;"
+                               class="easyui-textbox"  maxLength="20"
+                               data-options="required:true"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sztabletext" width="20%">状态</td>
+                    <td width="30%">
+                        <#dictTag name="status" showType="radio" dictCode="permisionStatus" width="200"></#dictTag>
+                    </td>
+                </tr>
+                <tr>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(function(){
+        var treeData = ${menuList};
+
+        //树相关内容
+        var setting = {
+            data: {
+                simpleData: {
+                    idKey :"id",
+                    pIdKey:"pId",
+                    enable: true
+                },
+                key : {
+                    name : "name"
+                }
+            },
+            view : {
+                selectedMulti: false
+            },
+            callback: {
+                onClick: setParent
+            }
+        };
+
+        if(treeData){
+            for(var i = 0 ; i < treeData.length ;i++){
+                treeData[i].icon = "${ctxPath}"+treeData[i].icon ;
+            }
+            $.fn.zTree.init($("#addmenuTree"), setting, treeData);	//创建树
+            $.fn.zTree.getZTreeObj("addmenuTree").expandAll(true);
+        }
+        /**
+         * 树点击事件
+         */
+        function setParent(event, treeId, treeNode) {
+            $("#parentName").textbox('setValue', treeNode.name);
+            $("#parentPid").val(treeNode.id);
+        };
+    });
+
+    var chooseIcon = function () {
+        xlauch.selIcon({
+            selfun : function (iconUrl, iconCss) {
+                $('#icon').textbox("setValue", iconUrl)
+            }
+        },"${ctxPath}")
+        /*xlauch.dialog({
+            title:'选择图标',
+            width:605,
+            height:400,
+            modal:true,
+            href: '${ctxPath}/sys/sysPermission/iconInit',
+            cache:false
+        }, "selIcon");*/
+    }
+</script>

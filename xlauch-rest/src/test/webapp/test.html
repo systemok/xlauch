@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>用于测试接口</title>
+    <script src="jquery-1.11.0.min.js"></script>
+	<script src="base64.js"></script>
+	<script src="md5.js"></script>
+    <script type="text/javascript">
+        function getResult(){
+          var param = {"user":"tes231t"};
+          var object = Base64.encode(JSON.stringify(param));
+		  var postParam = {"object":object, "sign":md5(object+"gnhphz")}
+          $.ajax({
+          url : "http://localhost:80/v1/userlsit",
+		  contentType: "application/json;charset=utf-8",
+		  headers: {
+              Authorization: "Bearer "+"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwieGxhdWNoS2V5IjoiZ25ocGh6IiwiZXhwIjoxNTMyNTA1NDM3LCJpYXQiOjE1MzI0MTkwMzd9.z77JHCqyikXSq_1ao93_8Rwu3NkOyPnBOL42kMPlTDRxBxBruSP4ohdWd-R8PecsO_bqcivo9eeuk8MbQe8UdQ"
+			},
+			/*beforeSend: function(request) {
+                        request.setRequestHeader("Authorization", "Bearer "+"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwieGxhdWNoS2V5IjoianJkMWRhIiwiZXhwIjoxNTE3Mzg5MTA3LCJpYXQiOjE1MTczMDI3MDd9.5pqeSyO1a8ctv3wQ2ZxYoPZ1MWH55kPOcJ4d-1R-W9C5yCdbIIVweNBdVgtlNffEhaR_wnfuFv8fnJtRxOUStQ");
+                    },*/
+          type : "POST",
+          dataType : "json",
+          data : JSON.stringify(postParam),
+          success : function(json){
+              $('#result').html(JSON.stringify(json));
+          }
+
+        });
+      }
+	 
+    </script>
+</head>
+<body>
+<input type="button" value="测试" onclick="getResult()"/><br/>
+  结果：<div style="width: 1000px;word-wrap: break-word; " id="result"></div>
+</body>
+</html>

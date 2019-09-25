@@ -1,0 +1,567 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <%
+        layout("/inc/easyui.html"){}
+        layout("/inc/ztree.html"){}
+    %>
+
+    <style type="text/css">
+        ul.ztree {
+            margin-top: 2px;
+            background: #E0ECFF;
+            min-height: 150px;
+            overflow-y:scroll;
+            overflow-x:auto;
+        }
+
+        #curPathDiv{
+            border:1px solid #F2F2F2 ; height:24px;line-height:24px;font-size:12px;background-color: white;border-radius:6px;
+        }
+
+    </style>
+
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'north'" style="height: 67px;" >
+        <table width="100%" class="queryTable" align="center">
+            <tr>
+                <td width="80%">
+                    <div id="curPathDiv" class="easyui-fluid" ondblclick="changeDivToTxt()"> </div>
+                </td>
+                <td width="20%">
+                    <input class="easyui-textbox" id="searchBox" data-options="buttonIcon:'icon-search',prompt:'请输入搜索内容',onClickButton:doSearch" style="width:97%" >
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <a href="javascript:{doAdd()}" class="easyui-linkbutton" iconCls="xlauch-menu-file" plain="true">新建文件</a>&nbsp;
+                    <a href="javascript:{doAdd(1)}" class="easyui-linkbutton" iconCls="xlauch-menu-folder_classic_add" plain="true">新建文件夹</a>&nbsp;
+                    <a href="javascript:{doEdit()}" class="easyui-linkbutton" iconCls="xlauch-edit" plain="true">编辑</a>&nbsp;
+                    <a href="javascript:{doRenameFile()}" class="easyui-linkbutton" iconCls="xlauch-edit2" plain="true">重命名</a>&nbsp;
+                    <a href="javascript:{doDelete()}" class="easyui-linkbutton" iconCls="xlauch-delete" plain="true">删除</a>&nbsp;
+                    <a href="javascript:{doUpload()}" class="easyui-linkbutton" iconCls="xlauch-upload" plain="true">上传</a>&nbsp;
+                    <a href="javascript:{doDownload()}" class="easyui-linkbutton" iconCls="xlauch-download" plain="true">下载</a>&nbsp;
+                </td>
+            </tr>
+            
+        </table>
+    </div>
+    <div data-options="region:'west',split:true" style="width:220px" >
+        <div id="aa" class="easyui-accordion" fit="true">
+            <div title="工程目录">
+                <ul id="projectTree" class="ztree" style="background:#FFFFFF;overflow:hidden;"></ul>
+            </div>
+            <div title="系统目录"   style="overflow:auto;">
+                <ul id="allTree" class="ztree" style="background:#FFFFFF;overflow:hidden;"></ul>
+            </div>
+        </div>
+
+    </div>
+    <div data-options="region:'center'" >
+        <table id="dataGrid" style="width:auto;height:auto"></table>
+    </div>
+
+
+    <!-- 右键菜单 -->
+    <div id="mm" class="easyui-menu" style="width:120px;">
+        <div data-options="iconCls:'xlauch-menu-file'" onclick="doAdd()">新建文件</div>
+        <div data-options="iconCls:'xlauch-menu-folder_classic_add'" onclick="doAdd(1)">新建文件夹</div>
+        <div data-options="iconCls:'xlauch-upload'" onclick="doUpload()">上传</div>
+        <div data-options="iconCls:'xlauch-download'" onclick="doDownload()">下载</div>
+        <div data-options="iconCls:'xlauch-delete'" onclick="doDelete()">删除</div>
+        <div style="display: none" onclick="doDownload()">解压</div>
+    </div>
+
+    <!-- 下载的表单、隐藏的iframe -->
+    <form method="post" action="${ctxPath}/deve/deveExpResource/download" id="downLoadForm" target="downLoadFrame">
+        <input type="hidden" name="paths" id="downLoadPaths">
+    </form>
+    <iframe src="" id="downLoadFrame" style="display: none;"></iframe>
+
+</body>
+<script type="text/javascript">
+        var driList = ${dirList};
+        var projectList = ${projectList};
+        var _CURR_PATH = "${projectPath}" ;		//当前路径
+
+        //树相关内容
+        var setting = {
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            },
+            async: {
+                enable: true, //启用异步加载
+                url:"${ctxPath}/deve/deveExpResource/listTree", //调用的后台的方法
+                autoParam:["path"] //向后台传递的参数
+            },
+            view : {
+                selectedMulti: false
+            },
+            callback: {
+                onClick: zTreeOnClick
+            }
+        }
+
+
+        /**
+         * 点击文字选中复选框、单选框
+         */
+        function zTreeOnClick(event, treeId, treeNode) {
+            var isParent = treeNode.isParent;
+            if(isParent){
+                doQuery(treeNode.path);
+                /* var treeObj = $.fn.zTree.getZTreeObj("allTree");
+                 treeObj.expandNode(treeNode); */
+            }
+        }
+
+
+        /**
+         * 显示带图标的文件名称
+         */
+        function showFileName(value,row,index){
+            var _filetype = row.postfix;
+            if(row.isParent){
+                _filetype = "folder";
+            }
+
+            _filetype = _filetype.toLowerCase() ;
+            /*var _str = "<span class='l-btn-left l-btn-icon-left'>" ;
+            _str += "<span class='l-btn-icon xlauch-delete' >&nbsp;</span>" ;
+            _str += "<span class='l-btn-text' style=\"vertical-align: middle;\" >" + value + "</span>" ;
+            _str += "</span>";
+            return _str ;*/
+
+            var _str = "<img src=\"${ctxPath}/images/filetype/"+_filetype+".gif\" " ;
+            _str += "style=\"vertical-align: middle;\" ";
+            _str += "onerror=\"this.src='${ctxPath}/images/filetype/default.gif'\" " ;
+            _str += "/> " ;
+            _str += "<span style=\"vertical-align: middle;\" >" + value + "</span>" ;
+            return _str ;
+        }
+
+
+        /**
+         * 查询
+         */
+        function doQuery(path) {
+            var _url="${ctxPath}/deve/deveExpResource/listDataGrid";
+            _CURR_PATH = path ;
+            initDiv();
+            $('#dataGrid').datagrid({
+                url : _url,
+                queryParams:{
+                    path : path
+                }
+            });
+        }
+
+        /**
+         * 搜索文件
+         */
+        function doSearch() {
+            var searchTxt = $("#searchBox").textbox("getValue");
+            $('#dataGrid').datagrid({
+                url : "${ctxPath}/deve/deveExpResource/searchDataGrid",
+                queryParams:{
+                    path : _CURR_PATH,
+                    searchTxt : searchTxt
+                }
+            });
+        }
+        
+
+        /**
+         * 新增文件
+         */
+        function doAdd(isFolder){
+            if(!_CURR_PATH){
+                xlauch.alert("请先选择文件夹");
+                return ;
+            }
+
+            var _content = "&nbsp;&nbsp;文件名称 : ";
+            _content += "<input style='width:300px;height:23px;margin-top:2px;' id='newFileTxt' ";
+            _content += "class=\"easyui-validatebox\" required=\"required\" validType=\"length[1,100]\"/>";
+
+            var _title = "&nbsp;新建文件";
+            var _iconCls = "xlauch-menu-file";
+            if(isFolder){
+                _title = "&nbsp;新建文件夹";
+                _iconCls = "xlauch-menu-folder_classic_add";
+            }
+
+            var p = parent.xlauch.dialog({
+                title : _title,
+                iconCls:_iconCls,
+                width:510,
+                height:100,
+                content : _content,
+                buttons : [{
+                    text:"提交",
+                    iconCls:"icon-save",
+                    handler : function(){
+                        var newFileTxt = p.find("#newFileTxt").val();
+                        if(!newFileTxt){
+                            p.find("#newFileTxt").click();
+                            return ;
+                        }
+
+                        $.post(
+                            "${ctxPath}/deve/deveExpResource/add",
+                            {
+                                path: _CURR_PATH,
+                                fileName : newFileTxt,
+                                isFolder : isFolder
+                            },
+                            function(json){
+                                if (json._code == xlauch.RES_SUCC) {
+                                    p.dialog('close');
+                                    doQuery(_CURR_PATH)
+                                }else {
+                                    parent.xlauch.messagerShow({
+                                        msg : json.msg,
+                                        title : '提示'
+                                    });
+                                }
+                            }
+                        );
+                    }
+                },{
+                    text:"关闭",
+                    iconCls:"icon-remove",
+                    handler : function(){
+                        p.dialog('close');
+                    }
+                }],
+                onLoad : function() {
+                }
+            });
+        }
+
+
+        /**
+         * 重命名
+         */
+        function doRenameFile(){
+            var rows = $('#dataGrid').datagrid('getSelections');
+            if(rows.length == 0 ){
+                parent.$.messager.alert("提示","请选择要修改的数据！");
+                return;
+            }else if(rows.length > 1){
+                parent.$.messager.alert("提示","只允许对单条数据进行编辑！");
+                return;
+            }
+
+            var oldName = rows[0].name ;
+            var _content = "&nbsp;&nbsp;文件名称 : ";
+            _content += "<input style='width:300px;height:23px;margin-top:2px;' id='reNameTxt' ";
+            _content += "value='" + oldName + "' ";
+            _content += "class=\"easyui-validatebox\" required=\"required\" validType=\"length[1,100]\"/>";
+
+
+            var p = parent.xlauch.dialog({
+                title : "文件重命名",
+                iconCls: "jee-edit",
+                width:510,
+                height:100,
+                content : _content,
+                buttons : [{
+                    text:"提交",
+                    iconCls:"icon-save",
+                    handler : function(){
+                        var newName = p.find("#reNameTxt").val();
+
+                        if(!newName){
+                            p.find("#reNameTxt").click();
+                            return ;
+                        }
+
+                        $.post(
+                            "${ctxPath}/deve/deveExpResource/editName",
+                            {
+                                path: _CURR_PATH,
+                                oldName : oldName,
+                                newName : newName
+                            },
+                            function(json){
+                                if (json._code == xlauch.RES_SUCC) {
+                                    p.dialog('close');
+                                    doQuery(_CURR_PATH);
+                                    json._msg = "重命名成功!" ;
+                                }
+
+                                parent.xlauch.messagerShow({
+                                    msg : json._msg,
+                                    title : '提示'
+                                });
+                            }
+                        );
+                    }
+                },{
+                    text:"关闭",
+                    iconCls:"icon-remove",
+                    handler : function(){
+                        p.dialog('close');
+                    }
+                }],
+                onLoad : function() {
+                }
+            });
+
+        }
+
+        /**
+         * 删除文件
+         */
+        function doDelete(){
+            var rows = $('#dataGrid').datagrid('getSelections');
+            var paths = [] ;
+            if(rows.length > 0 ){
+                parent.$.messager.confirm("删除确认!", "确定删除选择的文件吗?", function(res) {
+                    if(res){
+                        for(var i = 0 ; i < rows.length ; i++){
+                            paths.push(rows[i].path);
+                        }
+                        $.post(
+                            "${ctxPath}/deve/deveExpResource/delete",
+                            {
+                                paths:paths.join(",")
+                            },
+                            function(json){
+                                if (json._code == xlauch.RES_SUCC) {
+                                    doQuery(_CURR_PATH);
+                                    json._msg = "删除成功!" ;
+                                }
+
+                                parent.xlauch.messagerShow({
+                                    msg : json._msg,
+                                    title : '提示'
+                                });
+                            }
+                        );
+                    }
+                });
+            }else {
+                $.messager.alert("提示","请选择要删除的对象!");
+            }
+        }
+
+        /**
+         *  上传
+         */
+        function doUpload() {
+            if(!_CURR_PATH){
+                xlauch.alert("请先选择文件夹");
+                return ;
+            }
+
+            var _url = "${ctxPath}/deve/deveExpResource/uploadInit?path="+encodeURI(encodeURI(_CURR_PATH));
+            var upladoer = $('<iframe/>');
+            upladoer.attr({'src':_url,width:550,height:314,border:'0',frameborder:'0',scrolling:'no'});
+
+            var p = parent.xlauch.dialog({
+                title: "&nbsp;上传文件",
+                iconCls: "icon-add",
+                border :false,
+                height: 342,
+                width: 550,
+                modal: true,
+                content: upladoer,
+                onClose: function () {
+                    doQuery(_CURR_PATH);
+                },
+                onOpen: function () {
+                    var fw = xlauch.GetFrameWindow(upladoer[0]);
+                    fw.onload = function () {
+                        fw.target = p;
+                    };
+                }
+            });
+        }
+
+        /**
+         *  文件下载
+         */
+        function doDownload() {
+            var rows = $("#dataGrid").datagrid('getSelections');
+            if (rows.length == 0) {
+                xlauch.alert("请选择要下载的文件");
+                return ;
+            }
+
+            var paths = [] ;
+            for(var i = 0 ; i < rows.length ; i++){
+                paths.push(rows[i].path);
+            }
+
+            $("#downLoadPaths").val(paths.join(","));
+            $("#downLoadForm").submit();
+        }
+
+
+        /**
+         * 初始化div
+         */
+        function initDiv() {
+            var _pathArr = _CURR_PATH.split("/");
+            var _str = "<span class=\"textbox-icon xlauch-menu-folder_modernist\" style='margin-top: 2px;' >&nbsp;</span>" ;
+            for(var i = 0 ; i < _pathArr.length ; i++) {
+                if(_pathArr[i]) {
+                    _str += "<a href=\"javascript:{doQueryByIndex("+i+")}\" class=\"easyui-linkbutton l-btn l-btn-small l-btn-plain l-btn-text spanOver\" plain=\"true\">"+_pathArr[i]+"> </a>";
+                }
+            }
+            $("#curPathDiv").html(_str);
+        }
+
+        /**
+         * 根据点击的索引进行查询
+         */
+        function doQueryByIndex(index) {
+            var _path = getPathByIndex(index) ;
+            //alert(_path);
+            doQuery(_path);
+        }
+    
+
+        /**
+         * 根据索引获取路径
+         */
+        function getPathByIndex(index) {
+            var _divPath = _CURR_PATH.replace("\\","/");
+            var _pathArr = _divPath.split("/");
+            var _str = "" ;
+            for(var i = 0 ; i <= index ; i++) {
+                _str += _pathArr[i] + "/";
+            }
+            return _str ;
+        }
+
+        /**
+         * 编辑
+         */
+        function doEdit(r) {
+            var row = xlauch.editRowCheck("dataGrid" , r);
+            if(row && checkCanEdit(row.postfix)){
+                var p = xlauch.editRow({
+                    title : '&nbsp;编辑 "'+row.name + "\"",
+                    href : '${ctxPath}/deve/deveExpResource/editInit?path='+row.path ,
+                    width : 930,
+                    maximizable:true,
+                    row : r ,
+                    isIframe: true ,
+                    height: 530 ,
+                    buttons :[{
+                        text : '保存',
+                        iconCls:"icon-save",
+                        handler : function() {
+                            var fw = xlauch.GetFrameWindow(p.find("iframe")[0]);
+                            var content = fw.editor.getDoc().getValue();
+                            $.post("${ctxPath}/deve/deveExpResource/edit",
+                                {
+                                    path: row.path,
+                                    content: content
+                                },
+                                function(json){
+                                    if (json._code == xlauch.RES_SUCC) {
+                                        json._msg = "编辑成功!" ;
+                                        p.dialog('close');
+                                    }
+
+                                    parent.xlauch.messagerShow({
+                                        msg : json._msg,
+                                        title : '提示'
+                                    });
+                            });
+                        }
+                    },{
+                        text:"关闭",
+                        iconCls:"icon-remove",
+                        handler : function(){
+                            p.dialog('close');
+                        }
+                    }],
+                    onLoad : function() {
+                    }
+                });
+            }
+        }
+
+        /**
+         * 验证是否支持在线编辑
+         */
+        function checkCanEdit(postfix){
+            postfix = postfix.toLowerCase() ;
+            var str = ".jsp.js.css.html.java.ftl.txt.sql.xml.~sql.properties.config.ini.log.";
+            if(str.indexOf('.'+postfix+'.') < 0){
+                xlauch.alert("暂不支持编辑此类文件!");
+                return false  ;
+            }
+
+            return true ;
+        }
+
+        /**
+         * 初始化
+         */
+        $(function() {
+            if (driList) {
+                $.fn.zTree.init($("#allTree"), setting, driList);	//创建树
+                $.fn.zTree.init($("#projectTree"), setting, projectList);	//创建树
+                doQuery(_CURR_PATH);
+            }
+
+            $("#searchBox").textbox('textbox').bind('keydown', function(e){
+                if (e.keyCode == 13){	// 当按下回车键时接受输入的值。
+                    doSearch();
+                }
+            });
+
+
+
+            //初始化datagrid
+            $('#dataGrid').datagrid({
+
+                fitColumns:true,
+                rownumbers:true,
+                fit:true,
+                remoteSort:false,
+                toolbar: '#tb',
+                columns:[[
+                    {field:'id',hidden:true},
+                    {field:'postfix',hidden:true},
+                    {field:'isParent',hidden:true},
+                    {field:'length',hidden:true},
+                    {field:'name',title:'文件名称',width:170,align:'left',halign:'center',sortable:true,formatter: showFileName},
+                    {field:'size',title:'文件大小',width:80,align:'right',halign:'center',sortable:true},
+                    {field:'type',title:'文件类型',width:100,align:'left',sortable:true},
+                    {field:'updatetime',title:'修改时间',width:80,align:'left',sortable:true}
+                ]] ,
+                onDblClickRow : function(rowIndex, treeNode){
+                    var isParent = treeNode.isParent;
+                    if(!isParent){
+                        doEdit(treeNode);
+                    }else {
+                        /**/
+                        doQuery(treeNode.path);
+                    }
+                },onRowContextMenu : function (e, index, row) {
+                    e.preventDefault();
+                    $(this).datagrid("selectRow" , index);
+                    $("#mm").menu('show', {
+                        left : e.pageX,
+                        top : e.pageY
+                    })
+                }
+            });
+
+        });
+
+
+</script>
+</html>

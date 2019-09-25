@@ -1,0 +1,56 @@
+
+    <form style="margin: 0px;padding: 0px;"  method="post" >
+        <table width="100%" class="sztable" align="center">
+            <tr>
+                <input type="hidden" name="userId" />
+            </tr>
+            <tr>
+                <td class="sztabletext" width="20%">用户号码</td>
+                <td width="30%">
+                    <input name="username" type="text"  style="width:200px;"
+                           class="easyui-textbox"  maxLength="20"
+                           data-options="required:true"/>
+                </td>
+                <td class="sztabletext" width="20%">手机号码</td>
+                <td width="30%">
+                    <input name="mobile" type="text"  style="width:200px;"
+                           class="easyui-textbox"  maxLength="20"
+                           data-options="required:true"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="sztabletext" width="20%">用户昵称</td>
+                <td width="30%">
+                    <input name="nickname" type="text"  style="width:200px;"
+                           class="easyui-textbox"  maxLength="20"
+                           data-options="required:true"/>
+                </td>
+                <td class="sztabletext" width="20%">邮箱</td>
+                <td width="30%">
+                    <input name="email" type="text"  style="width:200px;"
+                           class="easyui-textbox"  maxLength="20"
+                           data-options="required:true"/>
+                </td>
+            </tr>
+            <tr>
+
+                <td class="sztabletext" width="20%">状态</td>
+                <td width="30%">
+                    <#dictTag name="status" showType="radio" dictCode="userStatus" width="200"></#dictTag>
+                </td>
+                <td class="sztabletext" width="20%">角色</td>
+                <td width="30%">
+                    <input class="easyui-combobox" style="width:200px;"
+                           name="roleIds" id="roleIds"
+                           data-options="
+                            url:'${ctxPath}/sys/sysRole/roleList',
+                            method:'get',
+                            valueField:'roleId',
+                            textField:'name',
+                            multiple:true,
+                            panelHeight:'auto',required:true
+                    "/>
+                </td>
+            </tr>
+        </table>
+    </form>

@@ -1,0 +1,192 @@
+<script type="text/javascript">
+    var _centerTabs ;			//中部tabs
+    var _centerTabsMenu ;		//中部tabs菜单
+    $(function(){
+        //初始化中部tabs菜单
+        _centerTabsMenu = $('#centerTabsMenu').menu({
+            onClick : function(item){
+                var _currTabTitle = $(this).data('tabTitle');		//获取当前右键tab的标题
+                var _currMenuType = $(item.target).attr('type');	//获取当前右键类型
+
+                //刷新
+                if(_currMenuType == 'refresh'){
+                    centerTabs_Refresh(_currTabTitle);
+                    return;
+                }
+
+                //关闭
+                if(_currMenuType == 'close'){
+                    centerTabs_Close(_currTabTitle);
+                    return;
+                }
+
+
+                //获取所有tab
+                var _allTabs = _centerTabs.tabs('tabs');
+                var _closeTabsTitle = [];			//定义数组
+                //循环
+                $.each(_allTabs, function() {
+                    var opt = $(this).panel('options');
+                    if (opt.closable && opt.title != _currTabTitle && _currMenuType === 'closeOther') {
+                        _closeTabsTitle.push(opt.title);
+                    } else if (opt.closable && _currMenuType === 'closeAll') {
+                        _closeTabsTitle.push(opt.title);
+                    }
+                });
+
+                for ( var i = 0; i < _closeTabsTitle.length; i++) {
+                    _centerTabs.tabs('close', _closeTabsTitle[i]);
+                }
+
+            }
+        });
+
+
+        //初始化中部tabs
+        _centerTabs = $('#centerTabs').tabs({
+            fit : true,
+            border : false,
+            onContextMenu : function(e, title) {
+                e.preventDefault();
+                _centerTabsMenu.menu('show', {
+                    left : e.pageX,
+                    top : e.pageY
+                }).data('tabTitle', title);
+            }
+        });
+    });
+
+
+    //刷新tab
+    function centerTabs_Refresh(tabTitle){
+        var _tab = _centerTabs.tabs('getTab', tabTitle);	//获取tab
+        _centerTabs.tabs('update', {
+            tab : _tab,
+            options : _tab.panel('options')
+        });
+    }
+
+    //关闭tab
+    function centerTabs_Close(tabTitle){
+        var _tab = _centerTabs.tabs('getTab', tabTitle);	//获取tab
+        if(_tab.panel('options').closable){					//判断是否能关闭
+            _centerTabs.tabs('close',tabTitle);
+        }
+    }
+
+    //关闭tab
+    function centerTabs_Close_Form(tabTitle){
+        if( _centerTabs.tabs('exists', tabTitle)){
+            var _tab = _centerTabs.tabs('getTab', tabTitle);	//获取tab
+            if(_tab.panel('options').closable){					//判断是否能关闭
+                _centerTabs.tabs('close',tabTitle);
+            }
+        }
+    }
+
+    //添加tab
+    function centerTabs_add(node){
+
+        //非空判断
+        if(node == null || node.tabTitle == null){
+            return ;
+        }
+
+        var _index = isExists(node.menuid);
+
+        //先判断tab是否存在
+        if(_index != -1){
+            _centerTabs.tabs('select',_index);
+            return ;
+        }else {
+
+            if(_centerTabs.tabs('tabs').length > 12){
+                $.messager.alert("提示","最多允许打开12个窗口!");
+                return ;
+            }
+
+            var _url = 'error.jsp';		//设置默认跳转到错误页面
+            if(node.url && node.url.length > 0 ){
+                _url = node.url ;	//获取url
+            }else {
+                return ;
+            }
+
+            //开启等待提示
+            $.messager.progress({
+                text : '页面加载中....',
+                interval : 100
+            });
+            //关闭等待提示
+            window.setTimeout(function() {
+                try {
+                    $.messager.progress('close');
+                } catch (e) {
+                }
+            }, 500);
+
+
+            //添加tab
+            _centerTabs.tabs('add', {
+                title : node.tabTitle,
+                id : node.menuid,
+                closable : true,
+                iconCls : node.icon,
+                roles : node.roles,
+                content : '<iframe src="'+ _url +'" frameborder="0" style="border:0;width:100%;height:100%;"></iframe>',
+                //href:_url,
+                tools : [ {
+                    iconCls : 'icon-mini-refresh',
+                    handler : function() {
+                        centerTabs_Refresh(node.tabTitle);
+                    }
+                } ]
+            });
+
+        }
+    }
+
+    /**
+     * 根据节点ID判断是否存在，如果存在返回索引，否则返回-1
+     */
+    function isExists(tabId){
+        var tabs = _centerTabs.tabs('tabs');
+        for(var i = 0 ; i < tabs.length ; i++){
+            var tmpId = tabs[i].panel('options').id ;
+            if(tmpId != null && tmpId == tabId){
+                return i ;
+            }
+        }
+
+        return -1 ;
+    }
+
+    function getCurrentTabUrl() {
+        var pp = _centerTabs.tabs('getSelected');
+        var _iframe = pp.panel('options').content;
+        if(_iframe) {
+            var _arr = _iframe.split("\"");
+            return _arr[1] ;
+        }
+
+        return "";
+    }
+
+    function getCurrentTabRoles() {
+        var pp = _centerTabs.tabs('getSelected');
+        var _iframe = pp.panel('options').content;
+        return pp.panel('options').roles ;
+    }
+
+</script>
+
+<div id="centerTabs" fit="true" >
+    <div title="欢迎使用" border="false"  href="${ctxPath}/index"  ></div>
+</div>
+<div id="centerTabsMenu" style="width: 120px;display:none;">
+    <div type="refresh">刷新</div>
+    <div class="menu-sep"></div>
+    <div type="close">关闭</div>
+    <div type="closeOther">关闭其他</div>
+    <div type="closeAll">关闭所有</div>
+</div>

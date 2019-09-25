@@ -1,0 +1,48 @@
+<form style="margin: 0px;padding: 0px;"  method="post" >
+    <table width="100%" class="sztable" align="center">
+        <tr>
+            <td class="sztabletext" width="20%">参数名称:</td>
+            <td width="30%">
+                <input name="name" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20"
+                       data-options="required:true"/>
+            </td>
+            <td class="sztabletext" width="20%">参数值:</td>
+            <td width="30%">
+                <input name="value" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20"
+                       data-options="required:true"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">扩展值1:</td>
+            <td width="30%">
+                <input name="ext1" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20" />
+            </td>
+            <td class="sztabletext" width="20%">扩展值2:</td>
+            <td width="30%">
+                <input name="ext2" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20" />
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">扩展值3:</td>
+            <td width="30%">
+                <input name="ext3" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20"  />
+            </td>
+            <td class="sztabletext" width="20%">能否修改:</td>
+            <td width="30%">
+                <#dictTag name="editable" showType="radio" dictCode="yesornot" width="100" value="1"></#dictTag>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">备注:</td>
+            <td colspan="3">
+                <input name="note" type="text"  style="width:650px;"
+                       class="easyui-textbox"  maxLength="20" />
+            </td>
+        </tr>
+    </table>
+</form>

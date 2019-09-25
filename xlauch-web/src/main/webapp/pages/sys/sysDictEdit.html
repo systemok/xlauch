@@ -1,0 +1,53 @@
+<form style="margin: 0px;padding: 0px;"  method="post" >
+    <table width="100%" class="sztable" align="center">
+        <tr>
+            <input type="hidden" name="dictid" />
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">字典编码</td>
+            <td width="30%">
+                <input name="code" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20"
+                       data-options="required:true"/>
+            </td>
+
+            <td class="sztabletext" width="20%">字典值</td>
+            <td width="30%">
+                <input name="val" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20"
+                       data-options="required:true"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">字典名</td>
+            <td width="30%">
+                <input name="name" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20"
+                       data-options="required:true"/>
+            </td>
+            <td class="sztabletext" width="20%">状态</td>
+            <td width="30%">
+                <#dictTag name="status" showType="radio" dictCode="dictStatus" width="200"></#dictTag>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">扩展值1</td>
+            <td width="30%">
+                <input name="ext1" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20"/>
+            </td>
+            <td class="sztabletext" width="20%">扩展值2</td>
+            <td width="30%">
+                <input name="ext2" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">扩展值3</td>
+            <td width="30%">
+                <input name="ext3" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20"/>
+            </td>
+        </tr>
+    </table>
+</form>

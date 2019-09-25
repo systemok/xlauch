@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <% layout("/inc/easyui.html"){} %>
+
+    <script type="text/javascript">
+    <%
+        if(isNotEmpty(priview.deveExp.script)){
+            var dictCode = initDict(priview.deveExp.script);
+            println(dictCode) ;
+        }
+    %>
+    </script>
+</head>
+<body>
+    <div id="tb">
+        <%
+            if(priview.paramList != null ){
+        %>
+        <form id="searchForm" name="searchForm" style="margin: 0px; padding: 0px;" method="post">
+            <table width="100%" class="sztable" align="center">
+                <tr>
+                    <input type="hidden" name="expCode" value="${priview.deveExp.code }" />
+                    <%
+                        for(par in priview.paramList){
+                    %>
+                            <td width="8%" align="right" class="sztabletext">${par.title}:</td>
+                            <td>
+                    <%
+                        if(par.dictable == 0){
+                            print(par.form);
+                        }else {
+                    %>
+                                <#dictTag name="${par.name}" showType="select" dictCode="${par.dictType}" width="${par.width + ''}"></#dictTag>
+                    <%}%>
+                            </td>
+                   <%
+                        //每行三个，判断是否整除3，且不是最后一个
+                        if((parLP.index)%3 == 0  &&!parLP.last){
+                    %>
+                </tr>
+                <tr>
+                    <%
+                         }
+                    }
+                    %>
+                </tr>
+                <tr>
+                    <td colspan="6" class="sztabletext">
+                        <div style="float: left;">
+                            &nbsp; <a href="javascript:void(0);" class="easyui-menubutton"  menu="#export_Menu" iconCls="icon-save">导出</a>
+                        </div>
+                        <div style="float: right;">
+                            <a href="javascript:{doSearch()}" class="easyui-linkbutton" iconCls="icon-search" plain="true">查询</a>
+                            <a href="javascript:{doClear()}" class="easyui-linkbutton" iconCls="icon-redo"  plain="true">清空</a>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <%
+            }
+        %>
+    </div>
+
+ 
+    <table class="easyui-datagrid" id="dataGrid"  style="width:auto;height:auto"
+           data-options="fit:true,
+    				fitColumns:${priview.deveExp.fitAble==1},
+    				pagination:true,
+    				remoteSort:false,
+    				toolbar: '#tb',
+    				pageSize:20,
+    				pageList:[1,20,30,40,50]">
+
+        <!-- 冻结的字段 -->
+        <thead frozen="true">
+        <tr>
+            <%
+            for(column in priview.columnList){
+            if(column.forzenable == 1) {
+            %>
+            <th data-options="
+                   field:'${column.name}',
+                   width:${column.width},
+                   align:'${column.align}',
+                   halign:'center',
+                   hidden:${column.showable==0},
+                   checkbox:${column.checkable==1},
+                  <%
+                    if(isNotEmpty(column.formater)){
+                        print(column.formater);println(",");
+                       }
+                    %>
+                   sortable:${column.orderable==1} " > ${column.title}
+            </th>
+            <%
+            }}
+            %>
+        </tr>
+        </thead>
+
+        <thead>
+        <tr>
+        <%
+            for(column in priview.columnList){
+                if(column.forzenable == 0) {
+        %>
+            <th data-options="
+                   field:'${column.name}',
+                   width:${column.width},
+                   align:'${column.align}',
+                   halign:'center',
+                   hidden:${column.showable==0},
+                   checkbox:${column.checkable==1},
+               <%
+                if(isNotEmpty(column.formater)){
+                    print(column.formater);println(",");
+                    }
+                  %>
+                      sortable:${column.orderable==1} " > ${column.title}
+            </th>
+        <%
+            }}
+        %>
+        </tr>
+        </thead>
+    </table>
+
+    <div id="export_Menu" class="easyui-menu" style="width:120px;">
+        <%
+            //是否导出txt
+            if(priview.deveExp.txtAble == 1){
+                println("<div data-options=\"iconCls:'icon-save'\" onclick=\"doExportFile('TXT')\" >Txt</div>");
+                println("<div class=\"menu-sep\"></div>");
+            }
+
+            //是否导出EXCEL
+            if(priview.deveExp.excelAble == 1){
+                println("<div onclick=\"doExportFile('EXCEL')\">Excel</div>");
+                println("<div class=\"menu-sep\"></div>");
+            }
+
+            //是否导出XML
+            if(priview.deveExp.xmlAble == 1){
+                println("<div onclick=\"doExportFile('XML')\">Xml</div>");
+                println("<div class=\"menu-sep\"></div>");
+            }
+        %>
+    </div>
+    <!-- 导出的表单、隐藏的iframe -->
+    <form method="post" action="${ctxPath}/deve/deveExpPriview/exportData" id="ifrForm" target="exportFrm">
+        <input type="hidden" name="expId" value="${priview.deveExp.expId}">
+        <input type="hidden" name="expName" value="${priview.deveExp.name}">
+        <input type="hidden" id="fileType" name="fileType"  >
+    </form>
+    <iframe src="" id="exportFrm" style="display: none;"></iframe>
+
+
+    
+    <script type="text/javascript">
+
+
+
+        /**
+         * 查询
+         */
+        function doSearch(){
+            var _obj = xlauch.serializeForm($('#searchForm').form());
+            var _url="${ctxPath}/deve/deveExpPriview/privew";
+            $('#dataGrid').datagrid({
+                url : _url,
+                queryParams:_obj
+            });
+        }
+
+        /**
+         *清空搜索条件
+         */
+        function doClear() {
+            $('#searchForm').form('reset');
+            $('#dataGrid').datagrid('load', {expCode : '${priview.deveExp.code }'});
+        }
+
+        /**
+         * 导出文件
+         */
+        function doExportFile(type) {
+            var rows = $("#dataGrid").datagrid("getRows");
+            if(rows.length == 0 ){
+                xlauch.alert("暂无数据可导出!");
+                return ;
+            }
+
+            var _url = "${ctxPath}/deve/deveExpPriview/exportData?";
+            _url +=  $("#searchForm").serialize();
+            $('#ifrForm').attr("action",_url);
+
+            $("#fileType").val(type);
+            $("#ifrForm").submit();
+        }
+
+    </script>
+
+</body>
+</html>

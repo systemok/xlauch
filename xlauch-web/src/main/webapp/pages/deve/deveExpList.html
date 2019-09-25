@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>图片上传预览</title>
+    <% layout("/inc/easyui.html"){} %>
+
+</head>
+<body>
+<div id="tb" >
+    <form id="searchForm" name="searchForm" style="margin: 0px; padding: 0px;" method="post">
+        <table width="100%" class="sztable" align="center">
+            <tr>
+                <td width="8%" align="right" class="sztabletext">组件名:</td>
+                <td width="20%" align="left"><input type="text" name="name" class="easyui-textbox" style="width: 200px"/></td>
+                <td width="8%" align="right" class="sztabletext">导出TXT:</td>
+                <td width="20%" align="left">
+                    <select class="easyui-combobox" style="width: 200px;" editable="false" name="txtAble">
+                        <option value="">请选择</option>
+                        <option value="1">是</option>
+                        <option value="0">否</option>
+                    </select>
+                </td>
+                <td width="8%" align="right" class="sztabletext">导出EXCEL:</td>
+                <td width="20%" align="left">
+                    <select class="easyui-combobox" style="width: 200px;" editable="false" name="excelAble" >
+                        <option value="">请选择</option>
+                        <option value="1">是</option>
+                        <option value="0">否</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td width="8%" align="right" class="sztabletext">导出XML:</td>
+                <td width="20%" align="left">
+                    <select class="easyui-combobox" style="width: 200px;" editable="false" name="xmlAble">
+                        <option value="">请选择</option>
+                        <option value="1">是</option>
+                        <option value="0">否</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="6" class="sztabletext">
+                    <div style="float: left;">
+                        <a href="javascript:{doAdd()}" class="easyui-linkbutton" iconCls="xlauch-add" plain="true">添加</a>
+                        <a href="javascript:{doEdit()}" class="easyui-linkbutton" iconCls="xlauch-edit" plain="true">修改</a>
+                        <a href="javascript:{doEditParam()}" class="easyui-linkbutton" iconCls="xlauch-edit2" plain="true">参数管理</a>
+                        <a href="javascript:{doEditColumn()}" class="easyui-linkbutton" iconCls="xlauch-edit3" plain="true">字段管理</a>
+                        <a href="javascript:{doDelete()}" class="easyui-linkbutton" iconCls="xlauch-delete" plain="true" >删除</a>
+                        <a href="javascript:{doDeleteCache()}" class="easyui-linkbutton" iconCls="xlauch-delete" plain="true" >删除缓存</a>
+                        <a href="javascript:{doPreview()}" class="easyui-linkbutton" iconCls="xlauch-priview1" plain="true" >预览</a>
+                        <a href="javascript:{doGenerPage()}" class="easyui-linkbutton" iconCls="xlauch-priview2" plain="true" >生成页面</a>
+                        <a href="javascript:{doGetLink()}" class="easyui-linkbutton" iconCls="xlauch-share" plain="true" >获取链接</a>
+                        <a href="javascript:{doExport()}" class="easyui-linkbutton" iconCls="xlauch-upload" plain="true" >导出对象</a>
+                        <a href="javascript:{doImport()}" class="easyui-linkbutton" iconCls="xlauch-download" plain="true" >导入对象</a>
+                    </div>
+                    <div style="float: right;">
+                        <a href="javascript:{doSearch()}" class="easyui-linkbutton" iconCls="icon-search" plain="true" >查询</a>
+                        <a href="javascript:{doClear()}" class="easyui-linkbutton" iconCls="icon-redo"  plain="true">清空</a>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="6" class="sztabletext">
+                    <div style="float: left;">
+                        多选:<input type="checkbox" value="1" id="isMulti" name="isMulti"  >
+                        idKey : <input type="text" value="ID" id="idKey" class="easyui-textbox" />
+                        nameKey : <input type="text" value="V_NAME" id="nameKey" class="easyui-textbox" />
+                        <a href="javascript:{doPreviewDataGrid()}" class="easyui-linkbutton" iconCls="xlauch-priview3" plain="true" >DataGrid</a>
+                        <a href="javascript:{doPreviewTree()}" class="easyui-linkbutton" iconCls="xlauch-priview4" plain="true" >Tree</a>
+                        <a href="javascript:{doPreviewReport()}" class="easyui-linkbutton" iconCls="xlauch-priview4" plain="true" >report</a>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+    <table id="dataGrid" style="width:auto;height:auto"></table>
+    <iframe src="" id="exportFrm" style="display: none;"></iframe>
+    <script type="text/javascript">
+        //初始化
+        $(function(){
+            $('#dataGrid').datagrid({
+                pagination:true,
+                fitColumns:true,
+                rownumbers:true,
+                fit:true,
+                toolbar: '#tb',
+                pageSize:20,
+                pageList:[1,20,30,40,50],
+                columns:[[
+                    {field:'expId',checkbox:true},
+                    {field:'name',title:'报表名称',width:120,align:'center'},
+                    {field:'code',title:'编码',width:120,align:'center'},
+                    {field:'txtAble',title:'导出TXT',width:60,align:'center',formatter: dict.yesOrNot},
+                    {field:'xmlAble',title:'导出XML',width:60,align:'center',formatter: dict.yesOrNot},
+                    {field:'excelAble',title:'导出EXCEL',width:60,align:'center',formatter: dict.yesOrNot},
+                    {field:'pageAble',title:'生成页面',width:60,align:'center',formatter: dict.yesOrNot},
+                    {field:'fitAble',title:'FITCOLUMN',width:60,align:'center',formatter: dict.yesOrNot},
+
+                    {field:'printtitleAble',title:'EXCEL是否打印标题 1:是  0:否',width:120,align:'center',hidden:true},
+                    {field:'sqlx',title:'报表SQL',width:120,align:'center',hidden:true},
+                    {field:'script',title:'页面脚本',width:120,align:'center',hidden:true},
+                    {field:'pagePath',title:'页面路径',width:120,align:'center',hidden:true},
+                    {field:'beginRow',title:'EXCEL导出开始行',width:120,align:'center',hidden:true},
+                    {field:'beginCol',title:'EXCEL导出开始列',width:120,align:'center',hidden:true},
+                    {field:'excelTemp',title:'EXCEL模板路径',width:120,align:'center',hidden:true},
+                    {field:'splitChar',title:'文本分隔符',width:120,align:'center',hidden:true},
+                    {field:'encoding',title:'文件编码',width:120,align:'center',hidden:true},
+
+                    {field:'rootName',title:'XML根节点名称',width:120,align:'center',hidden:true},
+                    {field:'nodesName',title:'XML节点名称',width:120,align:'center',hidden:true},
+                    {field:'lineChar',title:'换行符',width:120,align:'center',hidden:true},
+                    {field:'addTime',title:'添加时间',width:120,align:'center',hidden:true}
+                ]],
+                onDblClickRow : function(rowIndex, rowData){
+                    doEdit(rowData) ;
+                }
+            });
+        });
+
+
+
+        /**
+         * 查询
+         */
+        function doSearch(){
+            var _obj = xlauch.serializeForm($('#searchForm').form());
+            var _url="${ctxPath}/deve/deveExp/list";
+            $('#dataGrid').datagrid({
+                url : _url,
+                queryParams:_obj
+            });
+        }
+
+        /**
+         * 显示数据字典值
+         */
+        function showDictText(value,row,index){
+            if (value == "1"){
+                return "是";
+            } else {
+                return "<font color='red'>否</font>";
+            }
+        }
+
+        /**
+         *清空搜索条件
+         */
+        function doClear() {
+            $('#searchForm').form('reset');
+            $('#dataGrid').datagrid('load', {});
+        }
+
+        /**
+         * 添加
+         */
+        function doAdd() {
+            xlauch.addRow({
+                title : "&nbsp;添加" ,
+                href : "${ctxPath}/deve/deveExp/addInit",
+                width : 930,
+                height:530
+            });
+        }
+
+        /**
+         * 修改
+         */
+        function doEdit(r) {
+            var p = xlauch.editRow({
+                title : '&nbsp;修改',
+                href : '${ctxPath}/deve/deveExp/editInit',
+                width : 930,
+                row : r ,
+                //isIframe: true ,
+                height: 530 ,
+                onLoad : function() {
+                    var row = p.getRow() ;
+                    var f = p.find('form');
+                    f.form('load', row);
+                    p.find("#OLD_V_NAME").val(row.name);
+                }
+            });
+        }
+
+        /**
+         * 字段管理
+         */
+        function doEditColumn(){
+            var row = xlauch.editRowCheck("dataGrid");
+            if(row){
+                var p = xlauch.editRow({
+                    title : '&nbsp;"'+row.name+'"字段管理',
+                    href : '${ctxPath}/deve/deveExpColumn/listInit?expId='+row.expId,
+                    isIframe: true ,
+                    width : 1000,
+                    height : 550,
+                    maximizable :true,
+                    resizable:true,
+                    buttons : [{
+                        text:"关闭",
+                        iconCls:"icon-remove",
+                        handler : function(){
+                            p.dialog('close');
+                        }
+                    }]
+                });
+            }
+        }
+
+
+        /**
+         * 参数管理
+         */
+        function doEditParam(){
+            var row = xlauch.editRowCheck("dataGrid");
+            if(row){
+                var p = xlauch.editRow({
+                    title : '&nbsp;"'+row.name+'"参数管理',
+                    href : '${ctxPath}/deve/deveExpParam/listInit?expId='+row.expId,
+                    isIframe: true ,
+                    width : 1000,
+                    height : 550,
+                    maximizable :true,
+                    resizable:true,
+                    buttons : [{
+                        text:"关闭",
+                        iconCls:"icon-remove",
+                        handler : function(){
+                            p.dialog('close');
+                        }
+                    }]
+                });
+            }
+        }
+
+        /**
+         * 删除
+         */
+        function doDelete() {
+            xlauch.deleteRow({
+                pk : 'expId',
+                url: "${ctxPath}/deve/deveExp/delete"
+            });
+        }
+
+        /**
+         *  删除redis缓存
+         */
+        function doDeleteCache() {
+            xlauch.confirm("确定要删除缓存？",function () {
+                $.post(
+                    "${ctxPath}/deve/deveExp/deleteCache",
+                    function(json){
+                        var _msg = json._msg ;
+                        if (json._code == xlauch.RES_SUCC) {
+                            _msg = "删除成功" ;
+                        }
+                        parent.xlauch.messagerShow({
+                            msg : _msg ,
+                            title : '提示'
+                        });
+                    }
+                );
+            });
+        }
+
+
+        /**
+         * 预览
+         */
+        function doPreview() {
+            var row = xlauch.editRowCheck("dataGrid");
+            if(row){
+                var p = xlauch.editRow({
+                    title : '&nbsp;"'+row.name+'"预览',
+                    href : '${ctxPath}/deve/deveExpPriview?isDebug=true&expCode='+row.code,
+                    isIframe: true ,
+                    width : 1000,
+                    height : 550,
+                    maximizable :true,
+                    resizable:true,
+                    buttons : [{
+                        text:"关闭",
+                        iconCls:"icon-remove",
+                        handler : function(){
+                            p.dialog('close');
+                        }
+                    }]
+                });
+            }
+        }
+
+        /**
+         *  生成页面
+         */
+        function doGenerPage() {
+            var row = xlauch.editRowCheck("dataGrid");
+            if(row){
+                parent.$.messager.progress({
+                    text : '页面生成中...'
+                });
+
+                $.post('${ctxPath}/deve/deveExpPriview/generPage?expCode='+row.code ,
+                function(json){
+                    var _msg = json._msg ;
+                    if (json._code == xlauch.RES_SUCC) {
+                        _msg = "生成成功" ;
+                        doSearch();
+                    }
+                    parent.xlauch.messagerShow({
+                        msg : _msg ,
+                        title : '提示'
+                    });
+
+                    parent.$.messager.progress('close');
+                });
+            }
+        }
+
+
+        /**
+         * 获取链接
+         */
+        function doGetLink() {
+            var row = xlauch.editRowCheck("dataGrid");
+            if(row){
+                var _url = '${ctxPath}/deve/deveExpPriview?isDebug=true&expCode='+row.code;
+
+                var _content = '<table width="100%" class="sztable" align="center"><tr>';
+                _content +=  '<td width="20%" align="right" class="sztabletext">菜单路径：</td>';
+                _content +=  "<td><input value='"+_url+"' style='width:100%;height: 25px;border:1px solid #F2F2F2 ;' id='ptxt'  onclick='$(this).focus().select();'/>";
+                _content +=  "</td>";
+                _content +=  "</tr></table>";
+                var p = parent.xlauch.dialog({
+                    title : '&nbsp;导出链接地址',
+                    iconCls:"xlauch-share",
+                    width:600,
+                    height:220,
+                    content : _content,
+                    buttons : [{
+                        text:"预览",
+                        iconCls:"icon-search",
+                        handler : function(){
+                            window.open(_url);
+                        }
+                    },{
+                        text:"复制",
+                        iconCls:"icon-save",
+                        handler : function(){
+                            p.dialog('close');
+                            p.find("#ptxt").select(); // 选择对象
+                            document.execCommand("Copy"); // 执行浏览器复制命令
+                            xlauch.alert("已复制好，可贴粘。");
+                        }
+                    }]
+                });
+            }
+        }
+
+
+        /**
+         * 导出对象
+         */
+        function doExport() {
+            var rows = $("#dataGrid").datagrid('getSelections');
+            var ids = [];
+            if(rows.length == 0 ){
+                xlauch.alert("请选择要导出的对象!");
+                return ;
+            }
+
+            xlauch.confirm("确定导出对象?" , function () {
+                for(var i = 0 ; i < rows.length ; i++){
+                    ids.push(rows[i].expId);
+                }
+
+                $("#exportFrm").attr("src","${ctxPath}/deve/deveExpPriview/exportObject?ids="+ids.join(","));
+            });
+        }
+
+        /**
+         * 导入对象
+         */
+        function doImport() {
+            xlauch.upload({
+                upNum : 1,
+                filters: {
+                    mime_types : [ //只允许上传图片和zip文件
+                        { title : "xlauch文件", extensions : "xlauch" }
+                    ],
+                    max_file_size : '15mb', //最大只能上传15mb的文件
+                    prevent_duplicates : true //不允许选取重复文件
+                },
+                okfun : function (files) {
+                    if(files && files[0]) {
+                        parent.$.messager.progress({
+                            text : '文件解析中...'
+                        });
+
+                        $.post("${ctxPath}/deve/deveExpPriview/importObject", { "filePath": files[0].path},
+                        function(json){
+                            var _msg = json._msg ;
+                            if (json._code == xlauch.RES_SUCC) {
+                                _msg = "导入成功" ;
+                                doSearch();
+                            }
+                            parent.xlauch.messagerShow({
+                                msg : _msg ,
+                                title : '提示'
+                            });
+
+                            parent.$.messager.progress('close');
+                        });
+                    }
+                }
+            });
+        }
+
+
+    </script>
+
+</body>
+</html>

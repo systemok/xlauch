@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xlauch.web.mapper.deve.DeveExpColumnMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.xlauch.web.entity.deve.DeveExpColumn">
+		<id column="column_id" property="columnId" />
+		<result column="name" property="name" />
+		<result column="title" property="title" />
+		<result column="width" property="width" />
+		<result column="exp_id" property="expId" />
+		<result column="seq" property="seq" />
+		<result column="align" property="align" />
+		<result column="checkable" property="checkable" />
+		<result column="orderable" property="orderable" />
+		<result column="showable" property="showable" />
+		<result column="forzenable" property="forzenable" />
+		<result column="formater" property="formater" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        column_id AS columnId, name, title, width, exp_id AS expId, seq, align, checkable, orderable, showable, forzenable, formater
+    </sql>
+
+
+    <!-- 列表分页查询 -->
+    <select id="selectDeveExpColumnList"  parameterType="java.util.Map" resultMap="BaseResultMap">
+		select
+		     t.column_id,
+		     t.name,
+		     t.title,
+		     t.width,
+		     t.exp_id,
+		     t.seq,
+		     t.align,
+		     t.checkable,
+		     t.orderable,
+		     t.showable,
+		     t.forzenable,
+		     t.formater
+		from
+			t_deve_exp_column as t
+        <where>
+			<if test="expId != null">
+				t.exp_id = #{expId}
+			</if>
+			<if test="name != null">
+				and t.name like CONCAT('%',#{name},'%')
+			</if>
+			<if test="title != null">
+				and t.title like CONCAT('%',#{title},'%')
+			</if>
+        </where>
+		order by t.seq
+    </select>
+
+</mapper>

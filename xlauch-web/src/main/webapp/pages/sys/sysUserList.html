@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>系统用户表</title>
+    <% layout("/inc/easyui.html"){} %>
+
+</head>
+<body>
+    <div id="tb" >
+        <form id="searchForm" name="searchForm" style="margin: 0px; padding: 0px;" method="post">
+            <table width="100%" class="sztable" align="center">
+                <tr>
+                    <td width="8%" align="right" class="sztabletext">用户名:</td>
+                    <td width="20%" align="left"><input type="text" name="username" class="easyui-textbox"/></td>
+                    <td width="8%" align="right" class="sztabletext">手机号:</td>
+                    <td width="20%" align="left"><input type="text" name="mobile" class="easyui-textbox"/></td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="sztabletext">
+                        <div style="float: left;">
+                            <#shiroa href="javascript:{doAdd()}" iconCls="icon-add" permission="sysUserAdd">添加</#shiroa>
+                            <#shiroa href="javascript:{doEdit()}" iconCls="icon-edit" permission="sysUserEdit">修改</#shiroa>
+                            <#shiroa href="javascript:{doDelete()}" iconCls="icon-remove" permission="sysUserDelete">删除</#shiroa>
+                        </div>
+                        <div style="float: right;">
+                            <a href="javascript:{doSearch()}" class="easyui-linkbutton" iconCls="icon-search" plain="true">查询</a>
+                            <a href="javascript:{doClear()}" class="easyui-linkbutton" iconCls="icon-redo" plain="true">清空</a>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <table id="dataGrid" style="width:auto;height:auto"></table>
+    <script type="text/javascript">
+        ${initDict('userStatus')}
+        //初始化
+        $(function(){
+            $('#dataGrid').datagrid({
+                pagination:true,
+                fitColumns:true,
+                rownumbers:true,
+                fit:true,
+                toolbar: '#tb',
+                pageSize:40,
+                pageList:[20,30,40,50],
+                columns:[[
+                    {field: 'userId', checkbox: true},
+                    {field:'username',title:'用户名',width:120,align:'center'},
+                    {field:'mobile',title:'手机号码',width:120,align:'center'},
+                    {field:'nickname',title:'用户昵称',width:120,align:'center'},
+                    {field:'email',title:'邮箱',width:120,align:'center'},
+                    {field:'pswd',title:'密码',width:120,align:'center',hidden:true},
+                    {field:'createTime',title:'创建时间',width:120,align:'center'},
+                    {field:'lastLoginTime',title:'最后登录时间',width:120,align:'center'},
+                    {field:'status',title:'状态',width:120,align:'center',formatter: _DICT.USERSTATUS}
+                ]],
+                onDblClickRow : function(rowIndex, rowData){
+                    doEdit(rowData) ;
+                }
+            });
+            doSearch();
+        });
+
+
+
+        /**
+         * 查询
+         */
+        function doSearch(){
+            var _obj = xlauch.serializeForm($('#searchForm').form());
+            var _url="${ctxPath}/sys/sysUser/list";
+            $('#dataGrid').datagrid({
+                url : _url,
+                queryParams:_obj
+            });
+        }
+
+        /**
+         *清空搜索条件
+         */
+        function doClear() {
+            $('#searchForm').form('reset');
+            $('#dataGrid').datagrid('load', {});
+        }
+        /**
+         * 添加
+         */
+        function doAdd() {
+            xlauch.addRow({
+                title : "&nbsp;添加" ,
+                href : "${ctxPath}/sys/sysUser/addInit",
+                width : 930,
+                height:530
+            });
+        }
+
+        /**
+         * 修改
+         */
+        function doEdit(r) {
+            var p = xlauch.editRow({
+                title : '&nbsp;修改',
+                href : '${ctxPath}/sys/sysUser/editInit',
+                width : 930,
+                row : r ,
+                //isIframe: true ,
+                height: 530 ,
+                onLoad : function() {
+                    var row = p.getRow() ;
+                    var f = p.find('form');
+                    f.form('load', row);
+                    $.post(
+                        "${ctxPath}/sys/sysUser/userRole",
+                        {
+                            userId : row.userId
+                        },
+                        function(json){
+                            var _msg = json._msg ;
+                            if (json._code == xlauch.RES_SUCC) {
+                                var _result = json._result;console.log(f.find("roleIds"));
+                                p.find("#roleIds").combobox('setValues',_result);
+                            } else {
+                                parent.xlauch.messagerShow({
+                                    msg : _msg ,
+                                    title : '提示'
+                                });
+                            }
+                        }
+                    );
+                }
+            });
+        }
+
+        /**
+         * 删除
+         */
+        function doDelete() {
+            xlauch.deleteRow({
+                pk : 'userId',
+                url: "${ctxPath}/sys/sysUser/delete"
+            });
+        }
+
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <% layout("/inc/easyui.html"){} %>
+
+    <%
+    if(isNotEmpty(method.initDict)){
+    %>
+        <script type="text/javascript">
+    <%
+        var _dictCode = initDict(method.initDict);
+        println(_dictCode) ;
+    %>
+        </script>
+    <%
+    }
+    %>
+</head>
+<body>
+    <div id="tb">
+        <form id="searchForm" name="searchForm" style="margin: 0px; padding: 0px;" method="post">
+            <table width="100%" class="sztable" align="center">
+                <tr>
+                    <%
+                    if(method.paramList != null ){
+                    for(par in method.paramList){
+                    %>
+                    <td width="8%" align="right" class="sztabletext">${par.cname}:</td>
+                    <td>
+                        <%
+                        if(par.dictAble == 0){
+                            println(par.formStr);
+                        }else {
+                        %>
+                            <#dictTag name="${par.ename}" showType="select" dictCode="${par.dictType}" width="${par.width + ''}"></#dictTag>
+                        <%}%>
+                    </td>
+                    <%
+                    //每行三个，判断是否整除3，且不是最后一个
+                    if((parLP.index)%3 == 0  &&!parLP.last){
+                    %>
+                </tr>
+                <tr>
+                    <%
+                    }
+                    }
+                    }
+                    %>
+                </tr>
+                <tr>
+                    <td colspan="6" class="sztabletext">
+                        <div style="float: left;">
+                            <%
+                                for(deveMethod in deveObject.methodList){
+                                    if(deveMethod.iconPosition == 1 && deveMethod.status == 1){
+                            %>
+                                    <a href="javascript:{doSomeThing('${deveMethod.methodId}','${deveMethod.methodType}','${deveMethod.showType}','${deveMethod.width}','${deveMethod.height}')}" class="easyui-linkbutton" iconCls="${deveMethod.icon}" plain="true">${deveMethod.name}</a>
+                                    <#shiroa href="javascript:{doSomeThing('${deveMethod.methodId}','${deveMethod.methodType}','${deveMethod.showType}','${deveMethod.width}','${deveMethod.height}')}" iconCls="${deveMethod.icon}" permission="${deveObject.code}${deveMethod.name}">添加</#shiroa>
+                            <%
+                                }}
+                            %>
+                        </div>
+                        <div style="float: right;">
+                            <%
+                                for(deveMethod in deveObject.methodList){
+                                    if(deveMethod.iconPosition == 2 && deveMethod.status == 1){
+                            %>
+                                <a href="javascript:{doSomeThing('${deveMethod.methodId}','${deveMethod.methodType}','${deveMethod.showType}','${deveMethod.width}','${deveMethod.height}')}" class="easyui-linkbutton" iconCls="${deveMethod.icon}" plain="true">${deveMethod.name}</a>
+                            <%
+                                }}
+                            %>
+                            <a href="javascript:{doClear()}" class="easyui-linkbutton" iconCls="icon-redo"  plain="true">清空</a>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <table class="easyui-datagrid" id="dataGrid"  style="width:auto;height:auto"
+           data-options="fit:true,
+    				fitColumns:true,
+    				pagination:true,
+    				remoteSort:false,
+    				toolbar: '#tb',
+    				pageSize:20,
+    				pageList:[1,20,30,40,50]">
+        <!-- 冻结的字段 -->
+        <thead frozen="true">
+        <tr>
+            <%
+            for(column in method.columnList){
+            if(column.frozenAble == 1) {
+            %>
+            <th data-options="
+                   field:'${column.ename}',
+                   width:${column.width},
+                   align:'${column.align}',
+                   halign:'center',
+                   checkbox:${column.checkboxAble==1},
+                  <%
+                    if(isNotEmpty(column.formatter)){
+                        print(column.formatter);println(",");
+            }
+            %>
+            hidden : ${column.showAble==0},
+            sortable:${column.orderAble==1} " > ${column.cname}
+            </th>
+            <%
+            }}
+            %>
+        </tr>
+        </thead>
+
+        <thead>
+        <tr>
+            <%
+            for(column in method.columnList){
+            if(column.frozenAble == 0) {
+            %>
+            <th data-options="
+                   field:'${column.ename}',
+                   width:${column.width},
+                   align:'${column.align}',
+                   halign:'center',
+                   checkbox:${column.checkboxAble==1},
+                  <%
+                    if(isNotEmpty(column.formatter)){
+                        print(column.formatter);println(",");
+            }
+            %>
+            hidden : ${column.showAble==0},
+            sortable:${column.orderAble==1} " > ${column.cname}
+            </th>
+            <%
+            }}
+            %>
+        </tr>
+        </thead>
+
+    </table>
+    <script type="text/javascript" >
+
+        var _OBJ_CODE = "${deveObject.code}";
+
+        /**
+         *清空搜索条件
+         */
+        function doClear() {
+            $('#searchForm').form('reset');
+            doSearch('${method.methodId}');
+        }
+
+        /**
+         * 显示文件信息
+         */
+        function showFile(value,row,index) {
+            var _str = [] ;
+            if (value) {
+                try {
+                    var _arr = eval(value);
+                    _arr.forEach(function(file,index,array){
+                        //_str += "<a href=\"#\"  onclick=\"javascript:doLoad('"+ file.id +"')\">" + file.name+ "</a><br/>" ;
+                        _str.push(file.name);
+                    });
+                    return "<span title='双击下载'>" + _str.join(",") + "</span>";
+                }catch (err){
+                    return value ;
+                }
+            }
+            return "" ;
+        }
+
+        /**
+         * js入口
+         */
+        function doSomeThing(methodId , methodType , showType , width , height) {
+            width = width || 800 ;
+            height = height || 600 ;
+
+            if (methodType == "add") {
+                doAdd(methodId, width , height) ;
+            }else if (methodType == "query") {
+                doSearch(methodId);
+            }else if (methodType == "remove" || methodType == "delete") {
+                doDelete(methodId);
+            }else if(methodType == "edit" || methodType == "update") {
+                doEdit(methodId, width , height) ;
+            }
+        }
+
+
+        /**
+         * 添加
+         */
+        function doAdd(methodId, width , height) {
+            var p = xlauch.addRow({
+                title : "&nbsp;添加" ,
+                href : "${ctxPath}/deve/deveObjectPriview/addOrUpdateInit?_DEVE_METHODID=" + methodId +"&_DEVE_OBJCODE="+_OBJ_CODE,
+                width : parseInt(width),
+                height: parseInt(height),
+                onClose : function(){
+                    p.dialog('destroy');
+                    doSearch('${method.methodId}');
+                }
+            });
+        }
+
+        /**
+         * 修改
+         */
+        function doEdit(methodId, width , height) {
+            var p = xlauch.editRow({
+                title : '&nbsp;修改',
+                href : "${ctxPath}/deve/deveObjectPriview/addOrUpdateInit?_DEVE_METHODID=" + methodId +"&_DEVE_OBJCODE="+_OBJ_CODE,
+                width : parseInt(width),
+                height: parseInt(height),
+                //isIframe: true ,
+                onLoad : function() {
+                    var row = p.getRow() ;
+                    var f = p.find('form');
+                    f.form('load', row);
+                    p.find("#XLAUCH_LOADEDTAGBTN").click();
+                },
+                onClose : function(){
+                    p.dialog('destroy');
+                    doSearch('${method.methodId}');
+                }
+            });
+        }
+
+        /**
+         * 删除
+         */
+        function doDelete(methodId) {
+            xlauch.deleteRow({
+                pk : '${deveObject.pkName}',
+                url: "${ctxPath}/deve/deveObjectPriview/execute?_DEVE_METHODID=" + methodId +"&_DEVE_OBJCODE="+_OBJ_CODE,
+            });
+        }
+
+        /**
+         * 查询
+         */
+        function doSearch(methodId){
+            var _obj = xlauch.serializeForm($('#searchForm').form());
+            var _url="${ctxPath}/deve/deveObjectPriview/list?_DEVE_METHODID=" + methodId +"&_DEVE_OBJCODE="+_OBJ_CODE;
+            $('#dataGrid').datagrid({
+                url : _url,
+                queryParams:_obj
+            });
+        }
+
+
+    </script>
+
+</body>
+</html>

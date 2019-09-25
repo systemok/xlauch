@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>图片上传预览</title>
+    <% layout("/inc/easyui.html"){} %>
+
+</head>
+<body>
+    <div id="tb">
+        <form id="searchForm" name="searchForm" style="margin: 0px; padding: 0px;" method="post">
+            <input type="hidden" name="expId" value="${expId}">
+            <table width="100%" class="sztable" align="center">
+                <tr>
+                    <td width="8%" align="right" class="sztabletext">名称:</td>
+                    <td width="20%" align="left"><input type="text" name="name" class="easyui-textbox" style="width: 150px"/></td>
+                    <td width="8%" align="right" class="sztabletext">标题:</td>
+                    <td width="20%" align="left"><input type="text" name="title" class="easyui-textbox" style="width: 150px"/></td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="sztabletext">
+                        <div style="float: left;">
+                            <a href="javascript:{doAdd()}" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
+                            <a href="javascript:{doEdit()}" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a>
+                            <a href="javascript:{doGener()}" class="easyui-linkbutton" iconCls="icon-edit" plain="true">生成</a>
+                            <a href="javascript:{doDelete()}" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+                        </div>
+                        <div style="float: right;">
+                            <a href="javascript:{doSearch()}" class="easyui-linkbutton" iconCls="icon-search" plain="true">查询</a>
+                            <a href="javascript:{doClear()}" class="easyui-linkbutton" iconCls="icon-redo" plain="true">清空</a>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <table id="dataGrid" style="width:auto;height:auto"></table>
+    <script type="text/javascript">
+        //初始化
+        $(function(){
+            $('#dataGrid').datagrid({
+                pagination:true,
+                fitColumns:true,
+                rownumbers:true,
+                fit:true,
+                pageSize:20,
+                pageList:[20,30,40,50],
+                columns:[[
+                    {field: 'columnId', checkbox: true},
+                    {field: 'name',title: '字段名', width: 150, align: 'center'},
+                    {field: 'title',title: '字段标题', width: 150, align: 'center'},
+                    {field: 'width',title: '字段宽度', width: 100, align: 'center'},
+                    {field: 'align',title: '对齐方式', width: 100, align: 'center'},
+                    {field: 'checkable',title: '是否复选框', width: 100, align: 'center', formatter: dict.yesOrNot},
+                    {field: 'showable',title: '是否显示', width: 100, align: 'center', formatter: dict.yesOrNot},
+                    {field: 'orderable',title: '是否排序', width: 100, align: 'center', formatter: dict.yesOrNot},
+                    {field: 'forzenable',title: '是否冻结', width: 100, align: 'center', formatter: dict.yesOrNot},
+                    {field: 'seq',title: '排序号', width: 100, align: 'center'},
+                    {field: 'expId',title: '导出表主键', width: 100, align: 'center',hidden:true},
+                    {field: 'formater',title: '字段格式化', width: 100, align: 'center',hidden:true}
+                ]],
+                onDblClickRow : function(rowIndex, rowData){
+                    doEdit(rowData) ;
+                }
+            });
+
+            doSearch();
+        });
+
+
+
+        /**
+         * 查询
+         */
+        function doSearch(){
+            var _obj = xlauch.serializeForm($('#searchForm').form());
+            var _url="${ctxPath}/deve/deveExpColumn/list?expId=${expId}";
+            $('#dataGrid').datagrid({
+                url : _url,
+                queryParams:_obj
+            });
+        }
+
+        /**
+         *清空搜索条件
+         */
+        function doClear() {
+            $('#searchForm').form('reset');
+            $('#dataGrid').datagrid('load', {});
+        }
+        /**
+         * 添加
+         */
+        function doAdd() {
+            xlauch.addRow({
+                title : "&nbsp;添加" ,
+                href : "${ctxPath}/deve/deveExpColumn/addInit?expId=${expId}",
+                width : 930,
+                height:360
+            });
+        }
+
+        /**
+         * 修改
+         */
+        function doEdit(r) {
+            var p = xlauch.editRow({
+                title : '&nbsp;修改',
+                href : '${ctxPath}/deve/deveExpColumn/editInit',
+                width : 930,
+                row : r ,
+                //isIframe: true ,
+                height: 360 ,
+                onLoad : function() {
+                    var row = p.getRow() ;
+                    var f = p.find('form');
+                    f.form('load', row);
+                    p.find("#OLD_V_NAME").val(row.name);
+                }
+            });
+        }
+
+        /**
+         * 生成字段
+         */
+        function doGener(){
+            parent.$.messager.confirm("生成确认", "确定生成字段吗?", function(res) {
+                if(res){
+                    $.post(
+                        "${ctxPath}/deve/deveExpColumn/addBatch?expId=${expId}&d="+new Date(),
+                        function(json){
+                            var _msg = json._msg ;
+                            if (json._code == xlauch.RES_SUCC) {
+                                doSearch();
+                                _msg = "成功生成" + json._result + "条记录!" ;
+                            }
+                            parent.xlauch.messagerShow({
+                                msg : _msg ,
+                                title : '提示'
+                            });
+                        }
+                    );
+                }
+            });
+        }
+
+        /**
+         * 删除
+         */
+        function doDelete() {
+            xlauch.deleteRow({
+                pk : 'columnId',
+                url: "${ctxPath}/deve/deveExpColumn/delete"
+            });
+        }
+
+
+    </script>
+
+</body>
+</html>

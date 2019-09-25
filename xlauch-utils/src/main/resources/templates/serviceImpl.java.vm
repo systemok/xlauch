@@ -1,0 +1,37 @@
+package ${package.ServiceImpl};
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.baomidou.mybatisplus.plugins.Page;
+import com.xlauch.core.context.ActionContext;
+import com.xlauch.utils.page.DataGrid;
+
+import ${package.Entity}.${entity};
+import ${package.Mapper}.${table.mapperName};
+import ${package.Service}.${table.serviceName};
+import ${superServiceImplClassPackage};
+
+
+/**
+ * <p>
+ *  类描述: $!{table.comment} 服务实现类
+ * </p>
+ * @author ${author}
+ * @since ${date}
+ * @version 0.1
+ */
+@Service
+public class ${table.serviceImplName} extends ${superServiceImplClass}<${table.mapperName}, ${entity}> implements ${table.serviceName} {
+
+    @Autowired
+    private ${table.mapperName} ${cfg.lowName}Mapper ;
+
+    @Override
+    public DataGrid select${entity}List() {
+        ActionContext<${entity}> actionContext = ActionContext.getContext() ;
+        Page<${entity}> page = actionContext.getPage() ;
+        page.setRecords(${cfg.lowName}Mapper.select${entity}List(page , actionContext.getDataMap()));
+        return pageToDataGrid(page);
+    }
+}

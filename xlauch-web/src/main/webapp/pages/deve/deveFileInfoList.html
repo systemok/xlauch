@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>文件信息表</title>
+    <% layout("/inc/easyui.html"){} %>
+
+</head>
+<body>
+    <div id="tb" >
+        <form id="searchForm" name="searchForm" style="margin: 0px; padding: 0px;" method="post">
+            <table width="100%" class="sztable" align="center">
+                <tr>
+                    <td width="8%" align="right" class="sztabletext">文件名称:</td>
+                    <td width="20%" align="left"><input type="text" name="uploadName" class="easyui-textbox"/></td>
+                    <td width="8%" align="right" class="sztabletext">上传时间(起):</td>
+                    <td width="20%" align="left">
+                        <input type="text" class="easyui-datebox" name="beginTime"></input>
+                    </td>
+                    <td width="8%" align="right" class="sztabletext">上传时间(止):</td>
+                    <td width="20%" align="left">
+                        <input type="text" class="easyui-datebox" name="endTime"></input>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="sztabletext">
+                        <div style="float: left;">
+                            <#shiroa href="javascript:{doAdd()}" iconCls="icon-add" permission="deveFileInfoAdd">添加</#shiroa>
+                            <#shiroa href="javascript:{doDelete()}" iconCls="icon-remove" permission="deveFileInfoDelete">删除</#shiroa>
+                        </div>
+                        <div style="float: right;">
+                            <a href="javascript:{doSearch()}" class="easyui-linkbutton" iconCls="icon-search" plain="true">查询</a>
+                            <a href="javascript:{doClear()}" class="easyui-linkbutton" iconCls="icon-redo" plain="true">清空</a>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6" style="font-weight: bold;color: red;" align="left">
+                    注意：此处文件上传路径，请结合系统参数"FileUploadPath"中配置的文件上传目录使用
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <table id="dataGrid" style="width:auto;height:auto"></table>
+    <script type="text/javascript">
+        //初始化
+        $(function(){
+            $('#dataGrid').datagrid({
+                pagination:true,
+                fitColumns:true,
+                rownumbers:true,
+                fit:true,
+                toolbar: '#tb',
+                pageSize:20,
+                pageList:[20,30,40,50],
+                columns:[[
+                    {field: 'fileId', checkbox: true},
+                    {field:'uploadName',title:'文件上传名称',width:120,align:'center'},
+                    {field:'saveName',title:'文件实际保存名称',width:120,align:'center'},
+                    {field:'size',title:'文件大小',width:50,align:'center'},
+                    {field:'type',title:'文件类型',width:30,align:'center'},
+                    {field:'md5',title:'文件md5',width:120,align:'center',hidden:true},
+                    {field:'finish',title:'是否上传完成(0:未,1:完成)',width:120,align:'center',hidden:true},
+
+                    {field:'seq',title:'排序',width:120,align:'center',hidden:true},
+                    {field:'note',title:'备注',width:120,align:'center',hidden:true},
+                    {field:'pathType',title:'文件路径类型（系统参数）',width:180,align:'center',hidden:true},
+                    {field:'path',title:'文件路径',width:120,align:'center',hidden:true},
+
+                    {field:'pathAll',title:'文件完整路径',width:120,align:'center'},
+                    {field:'batcode',title:'上传批次号',width:120,align:'center',hidden:true},
+                    {field:'createuser',title:'创建人员',width:120,align:'center',hidden:true},
+                    {field:'createtime',title:'创建时间',width:50,align:'center' }                ]],
+                onDblClickRow : function(rowIndex, rowData){
+                    doEdit(rowData) ;
+                }
+            });
+            doSearch();
+        });
+
+
+
+        /**
+         * 查询
+         */
+        function doSearch(){
+            var _obj = xlauch.serializeForm($('#searchForm').form());
+            var _url="${ctxPath}/deve/deveFileInfo/list";
+            $('#dataGrid').datagrid({
+                url : _url,
+                queryParams:_obj
+            });
+        }
+
+        /**
+         *清空搜索条件
+         */
+        function doClear() {
+            $('#searchForm').form('reset');
+            $('#dataGrid').datagrid('load', {});
+        }
+        /**
+         * 添加
+         */
+        function doAdd() {
+            xlauch.upload({
+                upNum : 4,
+                filters: {
+                    mime_types : [ //只允许上传图片和zip文件
+                        { title : "所有文件", extensions : "*" },
+                        { title : "office", extensions : "doc,xls,xlxs,docx,ppt"},
+                        { title : "Zip files", extensions : "zip" },
+                        { title : "Zip files", extensions : "zip" }
+                    ],
+                    max_file_size : '15mb', //最大只能上传15mb的文件
+                    prevent_duplicates : true //不允许选取重复文件
+                },
+                okfun : function (files) {
+                    //console.log(files);
+                    doSearch();
+                }
+            });
+        }
+
+        /**
+         * 修改
+         */
+        function doEdit(r) {
+            var p = xlauch.editRow({
+                title : '&nbsp;查看详情',
+                href : '${ctxPath}/deve/deveFileInfo/editInit',
+                width : 930,
+                row : r ,
+                //isIframe: true ,
+                height: 195 ,
+                buttons :[{
+                    text:"关闭",
+                    iconCls:"icon-remove",
+                    handler : function(){
+                        p.dialog('close');
+                    }
+                }],
+                onLoad : function() {
+                    var row = p.getRow() ;
+                    var f = p.find('form');
+                    f.form('load', row);
+                }
+            });
+        }
+
+        /**
+         * 删除
+         */
+        function doDelete() {
+            xlauch.deleteRow({
+                pk : 'fileId',
+                url: "${ctxPath}/deve/deveFileInfo/delete"
+            });
+        }
+
+
+    </script>
+
+</body>
+</html>

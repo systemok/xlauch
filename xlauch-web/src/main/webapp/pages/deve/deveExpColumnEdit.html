@@ -1,0 +1,90 @@
+<form style="margin: 0px;padding: 0px;"  method="post" >
+    <input type="hidden" id="columnId" name="columnId"  />
+    <input type="hidden" id="expId" name="expId"   />
+    <input type="hidden" id="OLD_V_NAME" name="OLD_V_NAME"   />
+    <table width="100%" class="sztable" align="center">
+        <tr>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">字段名</td>
+            <td width="30%">
+                <input name="name" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20"
+                       data-options="required:true"/>
+            </td>
+            <td class="sztabletext" width="20%">字段标题</td>
+            <td width="30%">
+                <input name="title" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20"
+                       data-options="required:true"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">是否显示</td>
+            <td width="30%">
+                <select class="easyui-combobox" name="showable" style="width: 200px" editable="false" >
+                    <option value="1" selected>是</option>
+                    <option value="0">否</option>
+                </select>
+            </td>
+            <td class="sztabletext" width="20%">字段宽度</td>
+            <td width="30%">
+                <input name="width" type="text"  style="width:200px;" value="100"
+                       class="easyui-textbox"  maxLength="20"
+                       data-options="required:true"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">是否复选框</td>
+            <td width="30%">
+                <select class="easyui-combobox" name="checkable" style="width: 200px" editable="false" >
+                    <option value="1">是</option>
+                    <option value="0" selected>否</option>
+                </select>
+            </td>
+            <td class="sztabletext" width="20%">对齐</td>
+            <td width="30%">
+                <select class="easyui-combobox" name="align" style="width: 200px" editable="false" >
+                    <option value="left">居左</option>
+                    <option value="center" selected>居中</option>
+                    <option value="right">居右</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">是否冻结</td>
+            <td width="30%">
+                <select class="easyui-combobox" name="forzenable" style="width: 200px" editable="false" >
+                    <option value="1">是</option>
+                    <option value="0" selected>否</option>
+                </select>
+            </td>
+            <td class="sztabletext" width="20%">是否排序</td>
+            <td width="30%">
+                <select class="easyui-combobox" name="orderable" style="width: 200px" editable="false" >
+                    <option value="1">是</option>
+                    <option value="0" selected>否</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">排序号</td>
+            <td width="30%">
+                <input name="seq" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20"
+                       data-options="required:true"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">字段格式化</td>
+            <td width="35%" colspan="3">
+                    <span>
+                         formatter: function(value,row,index){return value;}
+                    </span>
+                <textarea id="formater" name="formater"  data-options="multiline:true"
+                          style="width: 650px;height:100px;"
+                          class="easyui-textbox"  validType="length[0,400]" ></textarea>
+            </td>
+        </tr>
+    </table>
+</form>

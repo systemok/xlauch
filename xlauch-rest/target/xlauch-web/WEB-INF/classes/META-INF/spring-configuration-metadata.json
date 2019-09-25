@@ -1,0 +1,42 @@
+{
+  "hints": [],
+  "groups": [
+    {
+      "sourceType": "com.xlauch.rest.config.properties.JwtProperties",
+      "name": "jwt",
+      "type": "com.xlauch.rest.config.properties.JwtProperties"
+    }
+  ],
+  "properties": [
+    {
+      "sourceType": "com.xlauch.rest.config.properties.JwtProperties",
+      "defaultValue": "auth",
+      "name": "jwt.auth-path",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.xlauch.rest.config.properties.JwtProperties",
+      "defaultValue": 86400,
+      "name": "jwt.expiration",
+      "type": "java.lang.Long"
+    },
+    {
+      "sourceType": "com.xlauch.rest.config.properties.JwtProperties",
+      "defaultValue": "Authorization",
+      "name": "jwt.header",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.xlauch.rest.config.properties.JwtProperties",
+      "defaultValue": "randomKey",
+      "name": "jwt.md5-key",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.xlauch.rest.config.properties.JwtProperties",
+      "defaultValue": "defaultSecret",
+      "name": "jwt.secret",
+      "type": "java.lang.String"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xlauch.web.mapper.deve.DeveObjectMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.xlauch.web.entity.deve.DeveObject">
+		<id column="obj_id" property="objId" />
+		<result column="code" property="code" />
+		<result column="name" property="name" />
+		<result column="db_name" property="dbName" />
+		<result column="type" property="type" />
+		<result column="pk_name" property="pkName" />
+		<result column="data_source" property="dataSource" />
+		<result column="status" property="status" />
+		<result column="add_time" property="addTime" />
+		<result column="add_user" property="addUser" />
+		<result column="update_time" property="updateTime" />
+		<result column="update_user" property="updateUser" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        obj_id AS objId, code, name, db_name AS dbName, type, pk_name AS pkName, data_source AS dataSource, status, add_time AS addTime, add_user AS addUser, update_time AS updateTime, update_user AS updateUser
+    </sql>
+
+
+    <!-- 列表分页查询 -->
+    <select id="selectDeveObjectList"  parameterType="java.util.Map" resultMap="BaseResultMap">
+		select
+		     t.obj_id,
+		     t.code,
+		     t.name,
+		     t.db_name,
+		     t.type,
+		     t.pk_name,
+		     t.data_source,
+		     t.status,
+		     t.add_time,
+		     t.add_user,
+		     t.update_time,
+		     t.update_user
+		from
+			t_deve_object as t
+        <where>
+			<if test="code != null">
+				AND t.code like CONCAT('%',#{code},'%')
+			</if>
+			<if test="name != null">
+				AND t.name like CONCAT('%',#{name},'%')
+			</if>
+			<if test="dataSource != null">
+				AND t.data_source = #{dataSource}
+			</if>
+        </where>
+		order by t.add_time desc
+    </select>
+
+</mapper>

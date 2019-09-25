@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <%
+        layout("/inc/codemirror.html"){}
+    %>
+</head>
+
+
+<body style="margin: 0px;">
+<form action="${ctxPath}/jee_deve_resource!edit.shtml" method="post" style="margin: 0px;">
+    <textarea id="code" name="code">${content} </textarea>
+    <input type="hidden" value="${encoding}" name="encoding" />
+    <input type="hidden" value="" id="content" name="content" />
+</form>
+<input type="button" id="btn" name="btn" style="display: none;"  onclick="getDocValue()" >
+
+<script type="text/javascript">
+    var textarea = document.getElementById("code");
+    var _doc = document.getElementById("content");
+
+    var editor = CodeMirror.fromTextArea(textarea, {
+        lineNumbers : true,
+        smartIndent: true,
+        autofocus: true,
+        mode: "text/html",
+        viewportMargin: Infinity
+    });
+
+    editor.setSize('auto', 'auto');
+
+    function getDocValue(){
+        _doc.value = editor.getDoc().getValue();
+    }
+</script>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>定时任务</title>
+    <% layout("/inc/easyui.html"){} %>
+
+</head>
+<body>
+    <div id="tb" >
+        <form id="searchForm" name="searchForm" style="margin: 0px; padding: 0px;" method="post">
+            <table width="100%" class="sztable" align="center">
+                <tr>
+                    <td width="8%" align="right" class="sztabletext">任务名称:</td>
+                    <td width="20%" align="left"><input type="text" name="jobName" class="easyui-textbox"/></td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="sztabletext">
+                        <div style="float: left;">
+                            <#shiroa href="javascript:{doAdd()}" iconCls="xlauch-add" permission="deveQuartzAdd">添加</#shiroa>
+                            <#shiroa href="javascript:{doEdit()}" iconCls="xlauch-edit" permission="deveQuartzEdit">修改</#shiroa>
+                            <#shiroa href="javascript:{doPause()}" iconCls="xlauch-edit2" permission="deveQuartzPause">暂停</#shiroa>
+                            <#shiroa href="javascript:{doResume()}" iconCls="xlauch-edit3" permission="deveQuartzResume">恢复</#shiroa>
+                            <#shiroa href="javascript:{doDelete()}" iconCls="xlauch-delete" permission="deveQuartzDelete">删除</#shiroa>
+                        </div>
+                        <div style="float: right;">
+                            <a href="javascript:{doSearch()}" class="easyui-linkbutton" iconCls="icon-search" plain="true">查询</a>
+                            <a href="javascript:{doClear()}" class="easyui-linkbutton" iconCls="icon-redo" plain="true">清空</a>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <table id="dataGrid" style="width:auto;height:auto"></table>
+    <script type="text/javascript">
+        //初始化
+        $(function(){
+            $('#dataGrid').datagrid({
+                pagination:true,
+                fitColumns:false,
+                rownumbers:true,
+                fit:true,
+                pageSize:20,
+                pageList:[20,30,40,50],
+                toolbar: '#tb',
+                frozenColumns:[[
+                    {field:'ID',checkbox:true},
+                    {field:'jobName',title:'任务名称',width:150,halign:'center',align:'center'},
+                    {field:"state",title:'状态',width:120,halign:'center',align:'center',formatter:showStatu,styler:showStatuColor},
+                    {field:'jobGroup',title:'V_GROUP',width:100,halign:'center',align:'center',hidden:true},
+                    {field:'triName',title:'V_TRINAME',width:100,halign:'center',align:'center',hidden:true},
+                    {field:'triGroup',title:'V_TRIGROUP',width:100,halign:'center',align:'center',hidden:true},
+                ]],
+                columns:[[
+                    {field:'className',title:'执行类',width:300,halign:'center',align:'center'},
+                    {field:'cronExpression',title:'轮循表达式',width:150,halign:'center',align:'center'},
+                    {field:'beginTime',title:'开始时间',width:140,halign:'center',align:'center'},
+                    {field:'endTime',title:'结束时间',width:140,halign:'center',align:'center'},
+                    {field:'nextFireTime',title:'下次执行时间',width:140,halign:'center',align:'center'},
+                    {field:'desc',title:'描述',width:200,halign:'center',align:'center'},
+                    {field:'',hidden:true}
+                ]],
+                onDblClickRow : function(rowIndex, rowData){
+                    doEdit(rowData) ;
+                }
+            });
+
+            doSearch();
+        });
+
+        /**
+         * 显示数据字典值
+         */
+        function showDictText(value,row,index){
+            if (value == "1"){
+                return "是";
+            } else {
+                return "<font color='red'>否</font>";
+            }
+        }
+
+        /**
+         * 显示状态   NONE, NORMAL, PAUSED, COMPLETE, ERROR, BLOCKED
+         *  	STATE_NONE 		-1
+         *  	STATE_NORMAL 	0
+         *  	STATE_PAUSED 	1
+         *  	STATE_COMPLETE 	2
+         *  	STATE_ERROR 	3
+         *  	STATE_BLOCKED 	4
+         */
+        function showStatuColor(value,row,index){
+            var _color = ["#E3E3E3","green","#88BADA","#a5a5a5","red","yellow"] ;
+            return 'background-color:'+_color[value]+';';
+        }
+
+        function showStatu(value,row,index){
+            var _state = ["无","正常","暂停","完成","错误","阻塞"] ;
+            return _state[value];
+        }
+
+        /**
+         * 查询
+         */
+        function doSearch(){
+            var _obj = xlauch.serializeForm($('#searchForm').form());
+            var _url="${ctxPath}/deve/deveQuartz/list";
+            $('#dataGrid').datagrid({
+                url : _url,
+                queryParams:_obj
+            });
+        }
+
+        /**
+         *清空搜索条件
+         */
+        function doClear() {
+            $('#searchForm').form('reset');
+            $('#dataGrid').datagrid('load', {});
+        }
+        /**
+         * 添加
+         */
+        function doAdd() {
+            xlauch.addRow({
+                title : "&nbsp;添加" ,
+                href : "${ctxPath}/deve/deveQuartz/addInit",
+                width : 930,
+                height: 250
+            });
+        }
+
+        /**
+         * 修改
+         */
+        function doEdit(r) {
+            var p = xlauch.editRow({
+                title : '&nbsp;修改',
+                href : '${ctxPath}/deve/deveQuartz/editInit',
+                width : 930,
+                row : r ,
+                //isIframe: true ,
+                height: 250 ,
+                onLoad : function() {
+                    var row = p.getRow() ;
+                    var f = p.find('form');
+                    f.form('load', row);
+                    p.find("#oldName").val(row.jobName);
+                }
+            });
+        }
+
+
+        /**
+         *  暂停任务
+         */
+        function doPause() {
+            xlauch.deleteRow({
+                pk : "jobName",
+                msg : "暂停",
+                url: "${ctxPath}/deve/deveQuartz/pause"
+            });
+        }
+
+        /**
+         *  恢复任务
+         */
+        function doResume() {
+            xlauch.deleteRow({
+                pk : "jobName",
+                msg : "恢复",
+                url: "${ctxPath}/deve/deveQuartz/resume"
+            });
+        }
+
+        /**
+         * 删除
+         */
+        function doDelete() {
+            xlauch.deleteRow({
+                pk : "jobName",
+                url: "${ctxPath}/deve/deveQuartz/delete"
+            });
+        }
+
+
+    </script>
+
+</body>
+</html>

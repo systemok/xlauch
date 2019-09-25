@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xlauch.web.mapper.deve.DeveObjectColumnMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.xlauch.web.entity.deve.DeveObjectColumn">
+		<id column="column_id" property="columnId" />
+		<result column="method_id" property="methodId" />
+		<result column="ename" property="ename" />
+		<result column="cname" property="cname" />
+		<result column="width" property="width" />
+		<result column="height" property="height" />
+		<result column="form_type" property="formType" />
+		<result column="form_str" property="formStr" />
+		<result column="default_value" property="defaultValue" />
+		<result column="cols" property="cols" />
+		<result column="seq" property="seq" />
+		<result column="show_able" property="showAble" />
+		<result column="frozen_able" property="frozenAble" />
+		<result column="order_able" property="orderAble" />
+		<result column="dict_able" property="dictAble" />
+		<result column="dict_str" property="dictStr" />
+		<result column="align" property="align" />
+		<result column="checkbox_able" property="checkboxAble" />
+		<result column="css" property="css" />
+		<result column="uiCheck" property="uiCheck" />
+		<result column="invalidMessage" property="invalidMessage" />
+		<result column="formatter" property="formatter" />
+		<result column="enent" property="enent" />
+	</resultMap>
+
+	<!-- 通用查询结果列 -->
+	<sql id="Base_Column_List">
+		column_id AS columnId, method_id AS methodId, ename, cname, width, height, form_type AS formType, form_str AS formStr, default_value AS defaultValue, cols, seq, show_able AS showAble, frozen_able AS frozenAble, order_able AS orderAble, dict_able AS dictAble, dict_str AS dictStr, align, checkbox_able AS checkboxAble, css, uiCheck, invalidMessage, formatter, enent
+	</sql>
+
+
+	<!-- 列表分页查询 -->
+	<select id="selectDeveObjectColumnList"  parameterType="java.util.Map" resultMap="BaseResultMap">
+		select
+			t.column_id,
+			t.method_id,
+			t.ename,
+			t.cname,
+			t.width,
+			t.height,
+			t.form_type,
+			t.form_str,
+			t.default_value,
+			t.cols,
+			t.seq,
+			t.show_able,
+			t.frozen_able,
+			t.order_able,
+			t.dict_able,
+			t.dict_str,
+			t.align,
+			t.checkbox_able,
+			t.css,
+			t.uiCheck,
+			t.invalidMessage,
+			t.formatter,
+			t.enent
+		from
+			t_deve_object_column as t
+        <where>
+			<if test="methodId != null">
+				AND t.method_id = #{methodId}
+			</if>
+			<if test="ename != null">
+				AND t.ename like CONCAT('%',#{ename},'%')
+			</if>
+			<if test="cname != null">
+				AND t.cname like CONCAT('%',#{cname},'%')
+			</if>
+        </where>
+		order by t.seq asc
+    </select>
+
+	<!-- 根据对象ID获取字段列表 -->
+	<select id="selectByObjectId" parameterType="int" resultMap="BaseResultMap" >
+		SELECT
+		 	*
+		FROM
+			t_deve_object_column
+		WHERE
+			method_id IN (
+				SELECT
+					method_id
+				FROM
+					t_deve_object_method m
+				WHERE
+					m.obj_id = #{objId}
+			)
+		order by seq asc
+	</select>
+
+
+	<!-- 根据对象ID删除字段 -->
+	<delete id="deleteByObjectId" parameterType="int" >
+		DELETE
+		FROM
+			t_deve_object_column
+		WHERE
+			method_id IN (
+				SELECT
+					method_id
+				FROM
+					t_deve_object_method m
+				WHERE
+					m.obj_id = #{objId}
+			)
+	</delete>
+
+</mapper>

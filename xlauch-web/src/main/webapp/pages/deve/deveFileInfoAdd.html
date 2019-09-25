@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>文件上传</title>
+    <%
+        layout("/inc/easyui.html"){}
+        layout("/inc/pupload.html"){}
+    %>
+
+    <script type="text/javascript">
+        var succ = [];
+        var errors = [];
+        var _opts = {} ;
+        var numNow = 0 ;
+
+        /**
+         * 初始化上传
+         */
+        function initUpload() {
+            $("#uploader").pluploadQueue($.extend({
+                url : '${ctxPath}/deve/deveFileInfo/addBatch',
+                //chunk_size:'1mb',
+                file_data_name:'file',
+                unique_names:true,
+                filters : _opts.filters,
+                init:{
+                    QueueChanged:function(uploader,files){
+                        if(uploader.files.length > parseInt(_opts.upNum)){
+                            parent.$.messager.alert('提示', "最多允许上传" + _opts.upNum + "个文件!");
+                            //移除多余文件
+                            uploader.files.splice((parseInt(_opts.upNum)), uploader.files.length);
+                        }
+                    },
+                    FileUploaded:function(uploader,file,response){
+                        if(response.response){
+                            var rs = $.parseJSON(response.response);
+                            if(rs._code == xlauch.RES_SUCC){
+                                //console.log(rs._result);
+                                file.id = rs._result.fileId ;
+                                file.size = rs._result.size ;
+                                file.path = rs._result.pathAll ;
+                                file.name = rs._result.uploadName ;
+                                succ.push(file);
+                            }else{
+                                errors.push(file);
+                                parent.$.messager.alert('提示', "上传失败："+ rs._msg);
+                            }
+                        }
+                    },
+                    UploadComplete:function(uploader,fs){
+                        var e= errors.length ? ",失败"+errors.length+"个("+errors.join("、")+")。" : "。";
+                        parent.$.messager.show({
+                            title:'提示',
+                            msg:"上传完成！共"+fs.length+"个。成功"+succ.length+e,
+                            timeout:2000
+                        });
+
+                        numNow += fs.length ;
+                        target.window("close");
+                    }
+                }
+            }));
+        }
+
+    </script>
+</head>
+<body style="padding: 0;margin: 0;">
+<div id="uploader">&nbsp;</div>
+</body>
+</html>

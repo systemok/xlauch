@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>二次开发--模块管理--模块方法表</title>
+    <% layout("/inc/easyui.html"){} %>
+    
+    <script type="text/javascript">
+        $(function(){
+            $('#tt').tabs({
+                border:false,
+                onSelect:function(title,index){
+                    if(index != 0 && !$("#methodId").val()){
+                        $.messager.alert("提示","请先保存基础配置!");
+                        $(this).tabs("select" , 0);
+                    }else {
+                        // index == 1 ： 字段管理
+                        if(index == 1) {
+                            if(!$("#columnIframe").attr("src")){
+                                var _src = "${ctxPath}/deve/deveObjectColumn/listInit" ;
+                                _src += "?methodId="+$("#methodId").val();
+                                $("#columnIframe").attr("src" , _src);
+                            }
+                            // index == 2 ： 参数管理
+                        }else if(index == 2) {
+                            if(!$("#paramIframe").attr("src")){
+                                var _src = "${ctxPath}/deve/deveObjectParam/listInit" ;
+                                _src += "?expId="+$("#methodId").val();
+                                $("#paramIframe").attr("src" , _src);
+                            }
+                            // index == 3 ： 页面预览
+                        }else if(index == 3) {
+                            var _src = "${ctxPath}/jee_deve_modulePriview!listInit.shtml" ;
+                            _src += "?methodId="+$("#methodId").val();
+                            $("#priviewIframe").attr("src" , _src);
+                        }
+                    }
+                }
+            });
+        });
+
+    </script>
+</head>
+<body>
+    <input type="hidden" id="methodId">
+    <div id="tt" class="easyui-tabs" fit=true>
+
+        <div title="基础配置" data-options="iconCls:'xlauch-add'" style="">
+            <iframe id="baseIframe" src="${ctxPath}/deve/deveObjectMethod/addInit?objId=${objId}"
+                    frameborder="0" style="border:0;width:100%;height:99%;">
+            </iframe>
+        </div>
+        <div title="字段管理" data-options="iconCls:'xlauch-add'" style="">
+            <iframe id="columnIframe"
+                    frameborder="0" style="border:0;width:100%;height:99%;">
+            </iframe>
+        </div>
+        <div title="参数管理" data-options="iconCls:'icon-reload'" style="">
+            <iframe id="paramIframe"
+                    frameborder="0" style="border:0;width:100%;height:99%;">
+            </iframe>
+        </div>
+        <!--<div title="页面预览" data-options="iconCls:'icon-reload'" style="">
+            <iframe id="priviewIframe"
+                    frameborder="0" style="border:0;width:100%;height:99%;">
+            </iframe>
+        </div>-->
+    </div>
+</body>
+</html>

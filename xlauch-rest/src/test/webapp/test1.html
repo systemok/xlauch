@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>用于测试接口</title>
+    <script src="jquery-1.11.0.min.js"></script>
+	<script src="base64.js"></script>
+	<script src="md5.js"></script>
+    <script type="text/javascript">
+        function getResult(){
+          var param = {"userName":"15980273571","password":"123456"};
+          $.post(
+          "http://localhost:80/auth",param, function(json){
+              $('#result').html(JSON.stringify(json));
+          });
+		}
+
+    </script>
+</head>
+<body>
+<input type="button" value="测试" onclick="getResult()"/><br/>
+  结果：<div style="width: 1000px;word-wrap: break-word; " id="result"></div>
+</body>
+</html>

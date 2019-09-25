@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>权限表</title>
+    <% layout("/inc/easyui.html"){} %>
+
+</head>
+<body>
+<div id="tb" >
+    <form id="searchForm" name="searchForm" style="margin: 0px; padding: 0px;" method="post">
+        <table width="100%" class="sztable" align="center">
+            <!--<tr>-->
+                <!--<td width="8%" align="right" class="sztabletext">组件名:</td>-->
+                <!--<td width="20%" align="left"><input type="text" name="name"/></td>-->
+            <!--</tr>-->
+            <tr>
+                <td colspan="6" class="sztabletext">
+                    <div style="float: left;">
+                        <#shiroa href="javascript:{doAdd()}" iconCls="icon-add" permission="sysPermissionAdd">添加</#shiroa>
+                        <#shiroa href="javascript:{doEdit()}" iconCls="icon-edit" permission="sysPermissionEdit">修改</#shiroa>
+                        <#shiroa href="javascript:{doDelete()}" iconCls="icon-remove" permission="sysPermissionDelete">删除</#shiroa>
+                    </div>
+                    <div style="float: right;">
+                        <a href="javascript:{doSearch()}" class="easyui-linkbutton" iconCls="icon-search" plain="true">查询</a>
+                        <a href="javascript:{doClear()}" class="easyui-linkbutton" iconCls="icon-redo" plain="true">清空</a>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="dataGrid" style="width:auto;height:auto"></table>
+<script type="text/javascript">
+    ${initDict('permisionStatus')}
+    ${initDict('permissionType')}
+    //初始化
+    $(function(){
+        $('#dataGrid').treegrid({
+            fitColumns:true,
+            fit:true,
+            toolbar: '#tb',
+            idField: 'permissionId',
+            treeField: 'name',
+            parentField: 'parentPid',//自定义属性
+            columns:[[
+                {field: 'permissionId', checkbox: true},
+                {field:'name',title:'权限名描述',width:120},
+                {field:'permissionCode',title:'权限编码',width:120},
+                {field:'permissionType',title:'权限类型',width:120, formatter: _DICT.PERMISSIONTYPE},
+                {field:'url',title:'url',width:120,align:'center'},
+                {field:'icon',title:'图标',width:120,align:'center',
+                    formatter: function (value, row, index) {
+                        if (value) {
+                            return '<img src="${ctxPath}'+value+'" style="margin:0px;width: 20px;height: 20px;"/>';
+                        }
+                        return value;
+                    }},
+                {field:'sortOrder',title:'排序',width:120,align:'center'},
+                {field:'status',title:'状态',width:120,align:'center', formatter: _DICT.PERMISIONSTATUS}
+            ]],
+            //对返回的数据进行处理,便于显示树形结构
+            loadFilter: function (data, parentId) {
+                var opt = $(this).data().treegrid.options;
+                var parentField;//获取自定义属性
+                if (opt.parentField) {
+                    parentField = opt.parentField;
+                    var jsonStr = JSON.stringify(data); //可以将json对象转换成json字符串
+                    jsonStr = jsonStr.replace(new RegExp(parentField, "gm"), "_parentId");
+                    return JSON.parse(jsonStr); //可以将json字符串转换成json对象
+                }
+            },
+            onDblClickRow : function(rowIndex, rowData){
+                doEdit(rowData) ;
+            }
+        });
+        doSearch();
+    });
+
+
+
+    /**
+     * 查询
+     */
+    function doSearch(){
+        var _obj = xlauch.serializeForm($('#searchForm').form());
+        var _url="${ctxPath}/sys/sysPermission/list";
+        $('#dataGrid').treegrid({
+            url : _url,
+            queryParams:_obj
+        });
+    }
+
+    /**
+     *清空搜索条件
+     */
+    function doClear() {
+        $('#searchForm').form('reset');
+        $('#dataGrid').treegrid('load', {});
+    }
+    /**
+     * 添加
+     */
+    function doAdd() {
+        var p = xlauch.addRow({
+            title : "&nbsp;添加" ,
+            href : "${ctxPath}/sys/sysPermission/addInit",
+            width : 600,
+            height:530
+        }, "treeGrid");
+
+    }
+
+    /**
+     * 修改
+     */
+    function doEdit(r) {
+        var p = xlauch.editRow({
+            title : '&nbsp;修改',
+            href : '${ctxPath}/sys/sysPermission/editInit',
+            width : 600,
+            row : r ,
+            //isIframe: true ,
+            height: 530 ,
+            onLoad : function() {
+                var row = p.getRow() ;
+                p.find("#permissionId").val(row.permissionId);
+                var f = p.find('form');
+                f.form('load', row);
+                row = $('#dataGrid').treegrid('getParent', row.permissionId);
+                if(row == null){
+                    p.find("#parentName").textbox("setValue", '所有');
+                    p.find("#parentPid").val(0);
+                } else{
+                    p.find("#parentName").textbox("setValue", row.name);
+                    p.find("#parentPid").val(row.permissionId);
+                }
+            }
+        }, "treeGrid");
+    }
+
+    /**
+     * 删除
+     */
+    function doDelete() {
+        xlauch.deleteRow({
+            pk : 'permissionId',
+            url: "${ctxPath}/sys/sysPermission/delete"
+        }, "treeGrid");
+    }
+
+
+</script>
+
+</body>
+</html>

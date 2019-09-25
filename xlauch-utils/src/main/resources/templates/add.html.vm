@@ -1,0 +1,25 @@
+<form style="margin: 0px;padding: 0px;"  method="post" >
+    #set($curIndex=0)
+    <table width="100%" class="sztable" align="center">
+        <tr>
+        #foreach($column in ${table.fields})
+        #if(${column.keyFlag})
+            <input type="hidden" name="${column.propertyName}" />
+        #end
+        #if(!${column.keyFlag})
+            <td class="sztabletext" width="20%">${column.comment}:</td>
+            <td width="30%">
+                <input name="${column.propertyName}" type="text"  style="width:200px;"
+                       class="easyui-textbox"  maxLength="20"
+                       data-options="required:true"/>
+            </td>
+        #set($curIndex=$curIndex+1)
+        #end
+        #if($curIndex % 2 == 0)
+        </tr>
+        <tr>
+        #end
+        #end
+        </tr>
+    </table>
+</form>

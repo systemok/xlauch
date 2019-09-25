@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>角色表</title>
+    <% layout("/inc/easyui.html"){} %>
+
+</head>
+<body>
+    <div id="tb" >
+        <form id="searchForm" name="searchForm" style="margin: 0px; padding: 0px;" method="post">
+            <table width="100%" class="sztable" align="center">
+                <tr>
+                    <td width="8%" align="right" class="sztabletext">角色名:</td>
+                    <td width="20%" align="left"><input type="text" name="name" class="easyui-textbox"/></td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="sztabletext">
+                        <div style="float: left;">
+                            <#shiroa href="javascript:{doAdd()}" iconCls="icon-add" permission="sysRoleAdd">添加</#shiroa>
+                            <#shiroa href="javascript:{doEdit()}" iconCls="icon-edit" permission="sysRoleEdit">修改</#shiroa>
+                            <#shiroa href="javascript:{doDelete()}" iconCls="icon-remove" permission="sysRoleDelete">删除</#shiroa>
+                            <#shiroa href="javascript:{doGrant()}" iconCls="icon-remove" permission="sysRoleGrant">授权</#shiroa>
+                        </div>
+                        <div style="float: right;">
+                            <a href="javascript:{doSearch()}" class="easyui-linkbutton" iconCls="icon-search" plain="true">查询</a>
+                            <a href="javascript:{doClear()}" class="easyui-linkbutton" iconCls="icon-redo" plain="true">清空</a>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <table id="dataGrid" style="width:auto;height:auto"></table>
+    <script type="text/javascript">
+        ${initDict('roleStatus')}
+        //初始化
+        $(function(){
+            $('#dataGrid').datagrid({
+                pagination:true,
+                fitColumns:true,
+                rownumbers:true,
+                fit:true,
+                toolbar: '#tb',
+                pageSize:20,
+                pageList:[20,30,40,50],
+                columns:[[
+                    {field: 'roleId', checkbox: true},
+                    {field:'name',title:'角色名称',width:120,align:'center'},
+                    {field:'status',title:'角色状态',width:120,align:'center', formatter: _DICT.ROLESTATUS}
+                ]],
+                onDblClickRow : function(rowIndex, rowData){
+                    doEdit(rowData) ;
+                }
+            });
+            doSearch();
+        });
+
+
+
+        /**
+         * 查询
+         */
+        function doSearch(){
+            var _obj = xlauch.serializeForm($('#searchForm').form());
+            var _url="${ctxPath}/sys/sysRole/list";
+            $('#dataGrid').datagrid({
+                url : _url,
+                queryParams:_obj
+            });
+        }
+
+        /**
+         *清空搜索条件
+         */
+        function doClear() {
+            $('#searchForm').form('reset');
+            $('#dataGrid').datagrid('load', {});
+        }
+        /**
+         * 添加
+         */
+        function doAdd() {
+            var p = xlauch.addRow({
+                title : "&nbsp;添加" ,
+                href : "${ctxPath}/sys/sysRole/addInit",
+                width : 600,
+                height:600,
+                buttons : [{
+                    text : '保存',
+                    iconCls:"icon-save",
+                    handler : function() {
+                        var f = p.find('form');
+                        if (f.form('validate')) {
+                            var treeObj = parent.$.fn.zTree.getZTreeObj("grantMenuTree");
+                            var nodes = treeObj.getCheckedNodes(true);
+                            var ids = [];
+                            if (nodes.length > 0) {
+                                for (var i = 0; i < nodes.length; i++) {
+                                    ids.push(nodes[i].id);
+                                }
+                                var _obj = xlauch.serializeForm(f);
+                                _obj.permissionIds = ids.join(',');
+                                parent.$.messager.progress({
+                                    text: '正在处理中...'
+                                });
+                                $.post(
+                                    "${ctxPath}/sys/sysRole/add",
+                                    _obj,
+                                    function (json) {
+                                        parent.$.messager.progress('close');
+                                        var _msg = json._msg;
+                                        if (json._code == xlauch.RES_SUCC) {
+                                            _msg = "新增角色成功!";
+                                            p.dialog("close");
+                                            $("#dataGrid").datagrid('load');
+                                        }
+                                        parent.xlauch.messagerShow({
+                                            msg: _msg,
+                                            title: '提示'
+                                        });
+                                    }
+                                );
+                            } else {
+                                parent.$.messager.alert("提示", "请选择要授予的权限!");
+                            }
+                        }
+                    }
+                },{
+                    text:"关闭",
+                    iconCls:"icon-remove",
+                    handler : function(){
+                        p.dialog('close');
+                    }
+                }]
+            });
+        }
+
+        /**
+         * 修改
+         */
+        function doEdit(r) {
+            var p = xlauch.editRow({
+                title : '&nbsp;修改',
+                href : '${ctxPath}/sys/sysRole/editInit',
+                width : 600,
+                row : r ,
+                //isIframe: true ,
+                height: 600 ,
+                buttons : [{
+                    text : '保存',
+                    iconCls:"icon-save",
+                    handler : function() {
+                        var row = p.getRow() ;
+                        var f = p.find('form');
+                        if (f.form('validate')) {
+                            var treeObj = parent.$.fn.zTree.getZTreeObj("grantMenuTree");
+                            var nodes = treeObj.getCheckedNodes(true);
+                            var ids = [];
+                            if (nodes.length > 0) {
+                                for (var i = 0; i < nodes.length; i++) {
+                                    ids.push(nodes[i].id);
+                                }
+                                var _obj = xlauch.serializeForm(f);
+                                _obj.permissionIds = ids.join(',');
+                                parent.$.messager.progress({
+                                    text: '正在处理中...'
+                                });
+                                $.post(
+                                    "${ctxPath}/sys/sysRole/edit",
+                                    _obj,
+                                    function (json) {
+                                        parent.$.messager.progress('close');
+                                        var _msg = json._msg;
+                                        if (json._code == xlauch.RES_SUCC) {
+                                            _msg = "修改成功!";
+                                            p.dialog("close");
+                                            $("#dataGrid").datagrid('load');
+                                        }
+                                        parent.xlauch.messagerShow({
+                                            msg: _msg,
+                                            title: '提示'
+                                        });
+                                    }
+                                );
+                            } else {
+                                parent.$.messager.alert("提示", "请选择要授予的权限!");
+                            }
+                        }
+                    }
+                },{
+                    text:"关闭",
+                    iconCls:"icon-remove",
+                    handler : function(){
+                        p.dialog('close');
+                    }
+                }],
+                onLoad : function() {
+                    var row = p.getRow() ;
+                    var f = p.find('form');
+                    f.form('load', row);
+                    var treeObj = parent.$.fn.zTree.getZTreeObj("grantMenuTree");
+                    var nodes = treeObj.transformToArray(treeObj.getNodes());
+                    $.post(
+                        "${ctxPath}/sys/sysRole/rolePermission",
+                        {
+                            roleId : row.roleId
+                        },
+                        function(json){
+                            var _msg = json._msg ;
+                            if (json._code == xlauch.RES_SUCC) {
+                                var _result = json._result;
+                                for (var i = 0; i < nodes.length; i++) {
+                                    for(var j = 0; j < _result.length; j++){
+                                        if(_result[j].permissionId == nodes[i].id){
+                                            nodes[i].checked = true;
+                                            treeObj.updateNode(nodes[i]);
+                                        }
+                                    }
+                                }
+                            } else {
+                                parent.xlauch.messagerShow({
+                                    msg : _msg ,
+                                    title : '提示'
+                                });
+                            }
+                        }
+                    );
+                }
+            });
+        }
+
+        /**
+         * 删除
+         */
+        function doDelete() {
+            xlauch.deleteRow({
+                pk : 'roleId',
+                url: "${ctxPath}/sys/sysRole/delete"
+            });
+        }
+
+        /**
+         * 授权
+         */
+        function doGrant(r) {
+            var p = xlauch.editRow({
+                title : '&nbsp;授权',
+                href : '${ctxPath}/sys/sysRole/grantInit',
+                width : 300,
+                row : r ,
+                //isIframe: true ,
+                height: 530 ,
+                buttons : [{
+                    text : '保存',
+                    iconCls:"icon-save",
+                    handler : function() {
+                        var row = p.getRow() ;
+                        var treeObj = parent.$.fn.zTree.getZTreeObj("grantMenuTree");
+                        var nodes = treeObj.getCheckedNodes(true);
+                        var ids = [];
+                        if(nodes.length > 0 ){
+                            for(var i = 0 ; i < nodes.length ; i++){
+                                ids.push(nodes[i].id);
+                            }
+                            parent.$.messager.progress({
+                                text : '正在处理中...'
+                            });
+                            $.post(
+                                "${ctxPath}/sys/sysRole/grant",
+                                {
+                                    ids:ids.join(','),
+                                    roleId : row.roleId
+                                },
+                                function(json){
+                                    parent.$.messager.progress('close');
+                                    var _msg = json._msg ;
+                                    if (json._code == xlauch.RES_SUCC) {
+                                        _msg = "授权成功!" ;
+                                        p.dialog("close");
+                                    }
+                                    parent.xlauch.messagerShow({
+                                        msg : _msg ,
+                                        title : '提示'
+                                    });
+                                }
+                            );
+                        }else {
+                            parent.$.messager.alert("提示","请选择要授予的权限!");
+                        }
+                    }
+                },{
+                text:"关闭",
+                    iconCls:"icon-remove",
+                    handler : function(){
+                        p.dialog('close');
+                    }
+                }],
+                onLoad : function() {
+                    var row = p.getRow() ;
+                    var treeObj = parent.$.fn.zTree.getZTreeObj("grantMenuTree");
+                    var nodes = treeObj.transformToArray(treeObj.getNodes());
+                    $.post(
+                        "${ctxPath}/sys/sysRole/rolePermission",
+                        {
+                            roleId : row.roleId
+                        },
+                        function(json){
+                            var _msg = json._msg ;
+                            if (json._code == xlauch.RES_SUCC) {
+                                var _result = json._result;
+                                for (var i = 0; i < nodes.length; i++) {
+                                    for(var j = 0; j < _result.length; j++){
+                                        if(_result[j].permissionId == nodes[i].id){
+                                            nodes[i].checked = true;
+                                            treeObj.updateNode(nodes[i]);
+                                        }
+                                    }
+                                }
+                            } else {
+                                parent.xlauch.messagerShow({
+                                    msg : _msg ,
+                                    title : '提示'
+                                });
+                            }
+                        }
+                    );
+
+                }
+            });
+        }
+
+
+    </script>
+
+</body>
+</html>

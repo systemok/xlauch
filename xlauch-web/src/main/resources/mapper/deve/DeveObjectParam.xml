@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xlauch.web.mapper.deve.DeveObjectParamMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.xlauch.web.entity.deve.DeveObjectParam">
+		<id column="param_id" property="paramId" />
+		<result column="method_id" property="methodId" />
+		<result column="ename" property="ename" />
+		<result column="cname" property="cname" />
+		<result column="like_able" property="likeAble" />
+		<result column="like_type" property="likeType" />
+		<result column="dict_able" property="dictAble" />
+		<result column="dict_type" property="dictType" />
+		<result column="width" property="width" />
+		<result column="enent" property="enent" />
+		<result column="form_type" property="formType" />
+		<result column="form_str" property="formStr" />
+		<result column="seq" property="seq" />
+		<result column="sqlx" property="sqlx" />
+		<result column="default_value" property="defaultValue" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        param_id AS paramId, method_id AS methodId, ename, cname, like_able AS likeAble, like_type AS likeType, dict_able AS dictAble, dict_type AS dictType, width, event, form_type AS formType, form_str AS formStr, seq, sqlx, default_value AS defaultValue
+    </sql>
+
+
+    <!-- 列表分页查询 -->
+    <select id="selectDeveObjectParamList"  parameterType="java.util.Map" resultMap="BaseResultMap">
+		select
+		     t.param_id,
+		     t.method_id,
+		     t.ename,
+		     t.cname,
+		     t.like_able,
+		     t.like_type,
+		     t.dict_able,
+		     t.dict_type,
+		     t.width,
+		     t.event,
+		     t.form_type,
+		     t.form_str,
+		     t.seq,
+		     t.sqlx,
+		     t.default_value
+		from
+			t_deve_object_param as t
+        <where>
+			<if test="methodId != null">
+				AND t.method_id = #{methodId}
+			</if>
+			<if test="ename != null">
+				AND t.ename like CONCAT('%',#{ename},'%')
+			</if>
+			<if test="cname != null">
+				AND t.cname like CONCAT('%',#{cname},'%')
+			</if>
+        </where>
+			order by t.seq asc
+    </select>
+
+
+	<!-- 根据对象ID获取字段列表 -->
+	<select id="selectByObjectId" parameterType="int" resultMap="BaseResultMap" >
+		SELECT
+			*
+		FROM
+			t_deve_object_param
+		WHERE
+			method_id IN (
+				SELECT
+					method_id
+				FROM
+					t_deve_object_method m
+				WHERE
+					m.obj_id = #{objId}
+			)
+		order by seq asc
+	</select>
+
+	<!-- 根据对象ID删除参数 -->
+	<delete id="deleteByObjectId" parameterType="int" >
+		DELETE
+		FROM
+			t_deve_object_param
+		WHERE
+			method_id IN (
+				SELECT
+					method_id
+				FROM
+					t_deve_object_method m
+				WHERE
+					m.obj_id = #{objId}
+			)
+	</delete>
+
+</mapper>

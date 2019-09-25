@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xlauch.web.mapper.deve.DeveQuartzMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.xlauch.web.entity.deve.DeveQuartz">
+		<result column="job_id" property="jobId" />
+		<result column="job_name" property="jobName" />
+		<result column="job_group" property="jobGroup" />
+		<result column="tri_name" property="triName" />
+		<result column="tri_group" property="triGroup" />
+		<result column="begin_time" property="beginTime" />
+		<result column="end_time" property="endTime" />
+		<result column="next_fire_time" property="nextFireTime" />
+		<result column="cronExpression" property="cronExpression" />
+		<result column="class_name" property="className" />
+		<result column="state" property="state" />
+		<result column="desc" property="desc" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        job_id AS jobId, job_name AS jobName, job_group AS jobGroup, tri_name AS triName, tri_group AS triGroup, begin_time AS beginTime, end_time AS endTime, next_fire_time AS nextFireTime, cronExpression, class_name AS className, state, desc
+    </sql>
+
+
+    <!-- 列表分页查询 -->
+    <select id="selectDeveQuartzList"  parameterType="java.util.Map" resultMap="BaseResultMap">
+		select
+		     t.job_id,
+		     t.job_name,
+		     t.job_group,
+		     t.tri_name,
+		     t.tri_group,
+		     t.begin_time,
+		     t.end_time,
+		     t.next_fire_time,
+		     t.cronExpression,
+		     t.class_name,
+		     t.state,
+		     t.desc
+		from
+			t_deve_quartz as t
+        <where>
+
+        </where>
+    </select>
+
+</mapper>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xlauch.web.mapper.sys.SysDictMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.xlauch.web.entity.sys.SysDict">
+		<id column="dictid" property="dictid" />
+		<result column="name" property="name" />
+		<result column="val" property="val" />
+		<result column="code" property="code" />
+		<result column="status" property="status" />
+		<result column="ext1" property="ext1" />
+		<result column="ext2" property="ext2" />
+		<result column="ext3" property="ext3" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        dictid, name, val, code, status, ext1, ext2, ext3
+    </sql>
+
+
+    <!-- 列表分页查询 -->
+    <select id="selectSysDictList"  parameterType="java.util.Map" resultMap="BaseResultMap">
+		select
+		     t.dictid,
+		     t.name,
+		     t.val,
+		     t.code,
+		     t.status,
+		     t.ext1,
+		     t.ext2,
+		     t.ext3
+		from
+			t_sys_dict as t
+        <where>
+			<if test="code!=null">
+				code = #{code}
+			</if>
+        </where>
+    </select>
+
+</mapper>

@@ -1,0 +1,39 @@
+<form style="margin: 0px;padding: 0px;"  method="post" >
+    <ul id="grantMenuTree" class="ztree" style=""></ul>
+</form>
+<script type="text/javascript">
+
+    $(function(){
+        var treeData = ${menuList};
+
+        //树相关内容
+        var setting = {
+            data: {
+                simpleData: {
+                    idKey :"id",
+                    pIdKey:"pId",
+                    enable: true
+                },
+                key : {
+                    name : "name"
+                }
+            },
+            view : {
+                selectedMulti: true
+            },
+            check : {
+                enable: true,
+                chkStyle : "checkbox"
+            },
+            callback: {
+//                onClick: setParent
+            }
+        };
+
+        if(treeData){
+            $.fn.zTree.init($("#grantMenuTree"), setting, treeData);	//创建树
+            $.fn.zTree.getZTreeObj("grantMenuTree").expandAll(true);
+        }
+    });
+
+</script>

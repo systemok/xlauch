@@ -1,0 +1,171 @@
+<form style="margin: 0px;padding: 0px;"  method="post" action="jee_deve_exp!add.shtml">
+    <div id="tt" class="easyui-tabs" fit="true" style="width:520px;height:450px;">
+        <div title="基础配置" >
+            <table width="100%" class="sztable" align="center">
+                <thead>
+                <tr>
+                    <td colspan="4">&nbsp;基础信息设置</td>
+                    <input type="hidden" name="expId" />
+                    <input type="hidden" name="code" />
+                    <input type="hidden" name="old_name" id="old_name"/>
+                </tr>
+                </thead>
+                <tr>
+                    <td width="15%" class="sztabletext" width="25%">报表名称:</td>
+                    <td>
+                        <input id="name" name="name" type="text"  style="width:200px;"
+                               class="easyui-textbox"  maxLength="20"
+                               data-options="required:true"/>
+                    </td>
+                    <td width="15%" class="sztabletext" width="25%">数据源:</td>
+                    <td>
+                        <select class="easyui-combobox" name="datasource" style="width: 200px" >
+                            <option value="dataSourcePrimary" selected>默认数据源</option>
+                            <option value="dataSourceSecond">250数据源</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sztabletext">是否生成页面:</td>
+                    <td>
+                        <select class="easyui-combobox" name="pageAble" style="width: 200px" >
+                            <option value="1" selected>是</option>
+                            <option value="0">否</option>
+                        </select>
+                    </td>
+                    <td class="sztabletext">是否自适应页面:</td>
+                    <td>
+                        <select class="easyui-combobox" name="fitAble" style="width: 200px" >
+                            <option value="1" selected>是</option>
+                            <option value="0">否</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sztabletext">页面路径:</td>
+                    <td colspan="3">
+                        <input id="pagePath" name="pagePath" type="text" style="width: 650px;" class="easyui-textbox" value="deve/deveExpPriviewList" required="required" validType="length[1,200]"/>
+                    </td>
+                </tr>
+                <thead>
+                <tr>
+                    <td colspan="4">&nbsp;导出文本设置</td>
+                </tr>
+                </thead>
+                <tr>
+                    <td width="15%" class="sztabletext">导出TXT:</td>
+                    <td width="35%" >
+                        <select class="easyui-combobox" name="txtAble" style="width: 200px" >
+                            <option value="1" selected>是</option>
+                            <option value="0">否</option>
+                        </select>
+                    </td>
+                    <td class="sztabletext">文件编码:</td>
+                    <td >
+                        <select name="encoding"  style="width: 200px;"  class="easyui-combobox">
+                            <option value="UTF-8" >UTF-8</option>
+                            <option value="GBK">GBK</option>
+                            <option value="ISO8859-1">ISO8859-1</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" class="sztabletext">文本分隔符:</td>
+                    <td width="35%" >
+                        <input id="splitChar" name="splitChar" type="text" value="/" style="width: 200px;" class="easyui-textbox" />
+                    </td>
+                    <td width="15%" class="sztabletext">换行符(默认系统换行):</td>
+                    <td width="35%">
+                        <input id="lineChar" name="lineChar" type="text" style="width: 200px;"  class="easyui-textbox"  validType="length[1,20]"/>
+                    </td>
+                </tr>
+                <thead>
+                <tr>
+                    <td colspan="4">&nbsp;导出EXCEL设置</td>
+                </tr>
+                </thead>
+
+                <tr>
+                    <td class="sztabletext">导出EXCEL:</td>
+                    <td>
+                        <select class="easyui-combobox" name="excelAble" style="width: 200px" >
+                            <option value="1" selected>是</option>
+                            <option value="0">否</option>
+                        </select>
+                    </td>
+                    <td width="15%" class="sztabletext">打印标题:</td>
+                    <td width="35%">
+                        <select class="easyui-combobox" name="printtitleAble" style="width: 200px" >
+                            <option value="1" selected>是</option>
+                            <option value="0">否</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sztabletext">Excel导出开始行:</td>
+                    <td>
+                        <input id="beginRow" name="beginRow" type="text" value="0" style="width: 200px;" class="easyui-numberbox" required="required" validType="length[1,2]"/>
+                    </td>
+                    <td class="sztabletext">Excel导出开始列:</td>
+                    <td>
+                        <input id="beginCol" name="beginCol" type="text" value="0" style="width: 200px;"  class="easyui-numberbox" required="required" validType="length[1,2]"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="sztabletext">EXCEL模板路径:</td>
+                    <td colspan="3">
+                        <input id="excelTemp" name="excelTemp" type="text"  style="width: 650px;"class="easyui-textbox" value=""  validType="length[1,100]"/>
+                    </td>
+                </tr>
+
+
+                <thead>
+                <tr>
+                    <td colspan="4">&nbsp;导出XML设置</td>
+                </tr>
+                </thead>
+                <tr>
+                    <td class="sztabletext">导出XML:</td>
+                    <td colspan="3">
+                        <select class="easyui-combobox" name="xmlAble" style="width: 200px" >
+                            <option value="1" selected>是</option>
+                            <option value="0">否</option>
+                        </select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="sztabletext" >XML根节点名称:</td>
+                    <td>
+                        <input id="rootName" name="rootName" type="text" style="width: 200px;" value="ROOT" class="easyui-textbox" required="required" validType="length[1,40]"/>
+                    </td>
+                    <td class="sztabletext" >XML节点名称:</td>
+                    <td>
+                        <input name="nodesName" type="text" style="width: 200px;" value="NODE"  class="easyui-textbox" required="required" validType="length[1,40]"/>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div title="脚本配置"  style="overflow:auto;">
+            <table width="100%" class="sztable" align="center">
+                <tr>
+                    <td width="15%"  class="sztabletext">查询语句:</td>
+                    <td colspan="3">
+                        <textarea id="sqlx" name="sqlx"  style="width: 650px;height: 200px;"
+                                  class="easyui-textbox" required="required"  data-options="multiline:true"
+                                  validType="length[1,2000]" onblur="doUpper(this);"></textarea>
+                        <div style="color: red;font-weight: bold;">提示："#{字段名}" 会替换成字段配置的语句; "\${字段名}"会被替换成"?" </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%"  class="sztabletext">页面脚本:</td>
+                    <td colspan="3">
+                        <textarea id="script" name="script"  style="width: 650px;height:200px;"
+                                  data-options="multiline:true"
+                                  class="easyui-textbox"  validType="length[0,400]" ></textarea>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>

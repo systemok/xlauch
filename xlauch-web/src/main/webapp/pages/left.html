@@ -1,0 +1,153 @@
+
+
+<script type="text/javascript">
+    Array.prototype.contains = function(item){
+        return RegExp(item).test(this);
+    };
+
+    /**
+     * @param {Function} fn 进行迭代判定的函数
+     * @param more ... 零个或多个可选的用户自定义参数
+     * @returns {Array} 结果集，如果没有结果，返回空集
+     */
+    Array.prototype.each = function(fn){
+        fn = fn || Function.K;
+        var a = [];
+        var args = Array.prototype.slice.call(arguments, 1);
+        for(var i = 0; i < this.length; i++){
+            var res = fn.apply(this,[this[i],i].concat(args));
+            if(res != null) a.push(res);
+        }
+        return a;
+    };
+
+    /**
+     * 得到一个数组不重复的元素集合<br/>
+     * 唯一化一个数组
+     * @returns {Array} 由不重复元素构成的数组
+     */
+    Array.prototype.uniquelize = function(){
+        var ra = new Array();
+        for(var i = 0; i < this.length; i ++){
+            if(!ra.contains(this[i])){
+                ra.push(this[i]);
+            }
+        }
+        return ra;
+    };
+
+
+
+    Array.minus = function(a, b){
+        return a.uniquelize().each(function(o){return b.contains(o) ? null : o});
+    };
+
+
+
+    var Node = function(menuid , tabTitle , url , icon , roles ){
+        this.menuid = menuid ;
+        this.tabTitle = tabTitle ;
+        this.url = url ;
+        this.icon = icon ;
+        this.roles = roles ;
+    };
+
+    //添加到中间tab
+    function addTab(menuid , tabTitle,url,icon, roles){
+        var n = new Node(menuid , tabTitle , url , icon, roles);
+        centerTabs_add(n);							//增加tab
+    }
+
+    //树相关内容
+    var setting = {
+        data: {
+            simpleData: {
+                idKey :"id",
+                pIdKey:"pId",
+                enable: true
+            },
+            key : {
+                name : "name"
+            }
+        },
+        view : {
+            selectedMulti: false
+        },
+        callback: {
+            onClick: zTreeOnClick
+        }
+    };
+
+    /**
+     * 树点击事件
+     */
+    function zTreeOnClick(event, treeId, treeNode) {
+        addTab(treeNode.id , treeNode.name , treeNode.vurl, treeNode.iconCls , treeNode.id) ;
+    };
+
+
+
+
+    /*var treeData = [
+        { id:1, pId:0, name:"普通的父节点", t:"我很普通，随便点我吧", open:true},
+        { id:11, pId:1, name:"百度" , V_URL:"http://www.baidu.com"},
+        { id:12, pId:1, name:"叶子节点 - 2", t:"我很普通，随便点我吧"},
+        { id:13, pId:1, name:"叶子节点 - 3", t:"我很普通，随便点我吧"},
+        { id:2, pId:0, name:"NB的父节点", t:"点我可以，但是不能点我的子节点，有本事点一个你试试看？", open:true},
+        { id:21, pId:2, name:"叶子节点2 - 1", t:"你哪个单位的？敢随便点我？小心点儿..", click:false},
+        { id:22, pId:2, name:"叶子节点2 - 2", t:"我有老爸罩着呢，点击我的小心点儿..", click:false},
+        { id:23, pId:2, name:"叶子节点2 - 3", t:"好歹我也是个领导，别普通群众就来点击我..", click:false},
+        { id:3, pId:0, name:"郁闷的父节点", t:"别点我，我好害怕...我的子节点随便点吧...", open:true, click:false },
+        { id:31, pId:3, name:"叶子节点3 - 1", t:"唉，随便点我吧"},
+        { id:32, pId:3, name:"叶子节点3 - 2", t:"唉，随便点我吧"},
+        { id:33, pId:3, name:"叶子节点3 - 3", t:"唉，随便点我吧"}
+    ];*/
+    var treeData = ${subMenuList};
+
+    $(function(){
+        if(treeData){
+            for(var i = 0 ; i < treeData.length ;i++){
+                treeData[i].icon = "${ctxPath}"+treeData[i].icon;
+                if(treeData[i].vurl){
+                    treeData[i].vurl = "${ctxPath}"+treeData[i].vurl;
+                }
+                treeData[i].iconCls = getIconCls(treeData[i].icon);
+            }
+
+            $.fn.zTree.init($("#iframeleftmenuTree"), setting, treeData);	//创建树
+            $.fn.zTree.getZTreeObj("iframeleftmenuTree").expandAll(true);
+        }
+    });
+
+    /**
+     * 根据图标URL获取css
+     */
+    function getIconCls(path){
+        if(!path){
+            return;
+        }
+        var p = path.split("/");
+        var fileName = p[p.length-1];
+        var f = fileName.split(".");
+        return "xlauch-menu-" + f[0];
+    }
+
+    /**
+     * 弹出新窗口
+     */
+    function openWin(_menuId ,_url , _roles){
+        $("#iframe_postForm").html('');//防止元素重复
+        $("#iframe_postForm").append('<input type="hidden" id="JEE_MENU_BTNS" name="JEE_MENU_BTNS" value="'+_roles+'" />');
+        $("#iframe_postForm").attr("target","newWin" + _menuId);
+        $("#iframe_postForm").attr("action",_url);
+        window.open("about:blank","newWin" + _menuId,"");	//newWin 是上面form的target
+        $("#iframe_postForm").submit();
+    }
+
+</script>
+<!--  导航内容 -->
+<ul id="iframeleftmenuTree" class="ztree" style=""></ul>
+<form id="iframe_postForm" style="display: none;" method="post" >
+    <input type="hidden" id="JEE_MENU_BTNS" name="JEE_MENU_BTNS"/>
+</form>
+   

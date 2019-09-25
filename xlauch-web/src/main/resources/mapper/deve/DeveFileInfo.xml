@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xlauch.web.mapper.deve.DeveFileInfoMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.xlauch.web.entity.deve.DeveFileInfo">
+		<id column="file_id" property="fileId" />
+		<result column="upload_name" property="uploadName" />
+		<result column="save_name" property="saveName" />
+		<result column="size" property="size" />
+		<result column="type" property="type" />
+		<result column="md5" property="md5" />
+		<result column="finish" property="finish" />
+		<result column="seq" property="seq" />
+		<result column="note" property="note" />
+		<result column="path_type" property="pathType" />
+		<result column="path" property="path" />
+		<result column="path_all" property="pathAll" />
+		<result column="batcode" property="batcode" />
+		<result column="createuser" property="createuser" />
+		<result column="createtime" property="createtime" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        file_id AS fileId, upload_name AS uploadName, save_name AS saveName, size, type, md5, finish, seq, note, path_type AS pathType, path, path_all AS pathAll, batcode, createuser, createtime
+    </sql>
+
+
+    <!-- 列表分页查询 -->
+    <select id="selectDeveFileInfoList"  parameterType="java.util.Map" resultMap="BaseResultMap">
+		select
+		     t.file_id,
+		     t.upload_name,
+		     t.save_name,
+		     t.size,
+		     t.type,
+		     t.md5,
+		     t.finish,
+		     t.seq,
+		     t.note,
+		     t.path_type,
+		     t.path,
+		     t.path_all,
+		     t.batcode,
+		     t.createuser,
+		     t.createtime
+		from
+			t_deve_file_info as t
+        <where>
+			<if test="uploadName != null">
+				AND t.upload_name like CONCAT('%',#{uploadName},'%')
+			</if>
+			<if test="beginTime != null">
+				<![CDATA[ AND t.createtime >= #{beginTime} ]]>
+			</if>
+			<if test="endTime != null">
+				<![CDATA[ AND t.createtime <= #{endTime} ]]>
+			</if>
+        </where>
+			order by t.createtime desc
+    </select>
+
+</mapper>

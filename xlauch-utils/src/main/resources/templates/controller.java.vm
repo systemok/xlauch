@@ -1,0 +1,138 @@
+package ${package.Controller};
+
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
+import java.util.Map;
+
+import com.xlauch.utils.page.DataGrid;
+import com.xlauch.core.config.errorcodemsg.ResponseCode;
+#if(${superControllerClassPackage})
+import ${superControllerClassPackage};
+#end
+import ${package.Service}.${table.serviceName};
+import ${package.Entity}.${entity};
+
+/**
+ * <p>
+ *      类描述: $!{table.comment} 前端控制器
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ * @version 0.1
+ */
+#if(${restControllerStyle})
+@RestController
+#else
+@Controller
+#end
+@RequestMapping("#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end")
+#if(${superControllerClass})
+public class ${table.controllerName} extends ${superControllerClass} {
+#else
+public class ${table.controllerName} {
+#end
+
+    /**
+     * 日志
+     */
+    private static final Logger log = Logger.getLogger(${table.controllerName}.class);
+
+    @Autowired
+    private ${table.serviceName} ${cfg.lowName}Service ;
+
+
+    /**
+     * 跳转列表页面
+     * @return
+     */
+    @RequestMapping("/listInit")
+    public String listInit() {
+        return "${package.ModuleName}/${cfg.lowName}List" ;
+    }
+
+    /**
+    * 分页查询
+    * @return
+    */
+    @RequestMapping("/list")
+    @ResponseBody
+    public DataGrid list() {
+        DataGrid dataGrid = ${cfg.lowName}Service.select${entity}List();
+        return dataGrid;
+    }
+
+
+    /**
+     * 跳转添加页面
+     * @return
+     */
+    @RequestMapping("/addInit")
+    public String addInit() {
+        return "${package.ModuleName}/${cfg.lowName}Add" ;
+    }
+
+
+    /**
+     * 新增
+     *
+     * @return
+     */
+    @RequestMapping("/add")
+    @ResponseBody
+    public Map add(${entity} ${cfg.lowName}) {
+        //新增
+        ${cfg.lowName}Service.insert(${cfg.lowName});
+        return ResponseCode.writeSuccess();
+    }
+
+    /**
+     * 跳转修改页面
+     * @return
+     */
+    @RequestMapping("/editInit")
+    public String editInit() {
+         return "${package.ModuleName}/${cfg.lowName}Edit" ;
+    }
+
+
+    /**
+     * 修改
+     *
+     * @return
+     */
+    @RequestMapping("/edit")
+    @ResponseBody
+    public Map edit(${entity} ${cfg.lowName}) {
+        //修改
+        ${cfg.lowName}Service.updateById(${cfg.lowName});
+        return ResponseCode.writeSuccess();
+    }
+
+    /**
+     * 删除
+     *
+     * @return
+     */
+    @RequestMapping("/delete")
+    @ResponseBody
+    public Map delete(String ids) throws Exception {
+        log.info("delete:" + ids);
+        //29000: 删除主键值不允许为空
+        if (StringUtils.isEmpty(ids)) {
+            ResponseCode.bussException("29000");
+        }
+
+        List<Integer> idList = getIdList(ids) ;
+        ${cfg.lowName}Service.deleteBatchIds(idList);
+        return ResponseCode.writeSuccessResult(idList.size());
+    }
+
+}

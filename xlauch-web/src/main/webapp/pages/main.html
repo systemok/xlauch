@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit"/><!-- 让360浏览器默认选择webkit内核 -->
+
+    <title>xlauch 框架</title>
+    <link href="${ctxPath}/login/style.css" rel="stylesheet" type="text/css"/>
+    <% layout("/inc/easyui.html"){} %>
+    <% layout("/inc/ztree.html"){} %>
+
+
+
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'north',href:'${ctxPath}/top'"
+         style="padding: 0px;border:0px;margin:0px;height:89px;background:url('${ctxPath}/login/images/topbg.gif') repeat-x;"></div>
+
+    <div data-options="region:'west',split:true,title:'导航菜单'"
+         style="width:200px;" id="west"
+         href="${ctxPath}/left">
+    </div>
+
+    <div data-options="region:'center',href:'${ctxPath}/center'"></div>
+    <div data-options="region:'south'" style="height:20px;">
+        <div style="text-align: center">© 2017-2018 xlauch.com. 版权所有 &nbsp;&nbsp; ICP证：闽ICP备15014790号</div>
+    </div>
+</body>
+</html>

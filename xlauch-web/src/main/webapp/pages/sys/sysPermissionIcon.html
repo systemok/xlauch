@@ -1,0 +1,39 @@
+<div id="_commSelIconDiv" style="background: #eeeeee">
+
+</div>
+<input type="hidden" id="_commSelIconUrl"/>
+<input type="hidden" id="_commSelIconCss"/>
+<script type="text/javascript">
+    function clickIcon(url) {
+        //$('#icon').textbox("setValue", url)
+        $('#_commSelIconUrl').val(url);
+        $('#_commSelIconCss').val(getIconCls(url));
+        $('#_commSelIcon').dialog("close");
+    }
+
+    /**
+     * 根据图标URL获取css
+     */
+    function getIconCls(path){
+        if(!path){
+            return;
+        }
+        var p = path.split("/");
+        var fileName = p[p.length-1];
+        var f = fileName.split(".");
+        return "xlauch-menu-" + f[0];
+    }
+
+    $(function () {
+        $.ajax({
+            type: "GET",
+            url: "${ctxPath}/sys/sysPermission/icons",
+            success: function (data) {
+                $("#_commSelIconDiv").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#_commSelIconDiv').append('<img onclick="clickIcon(\'' + data[i] + '\')"  style="margin: 5px;" src="${ctxPath}' + data[i] + '"/>');
+                }
+            }
+        });
+    });
+</script>

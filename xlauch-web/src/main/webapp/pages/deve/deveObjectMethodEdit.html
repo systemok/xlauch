@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>二次开发--模块管理--模块方法表</title>
+    <% layout("/inc/easyui.html"){} %>
+
+</head>
+<body>
+<form style="margin: 0px;padding: 0px;" method="post" id="editForm">
+    <input type="hidden" name="objId" value="${method.objId}"/>
+    <input type="hidden" name="methodId" id="methodId" value="${method.methodId}"/>
+    <input type="hidden" name="iconPath" id="iconPath" value="${method.iconPath}"/>
+    <input type="hidden" name="icon" id="icon"  value="${method.icon}"/>
+
+    <div id="p" class="easyui-panel" title="基础配置" style="width:100%;" data-options="collapsible:true ">
+    <table width="100%" class="sztable" align="center">
+        <tr>
+            <td class="sztabletext" width="20%">方法编码:</td>
+            <td width="30%">
+                <input name="code" type="text" style="width:200px;" prompt="请填写方法编码"
+                       class="easyui-textbox" maxLength="20"  value="${method.code}"
+                       data-options="required:true"/>
+            </td>
+            <td class="sztabletext" width="20%">方法名称:</td>
+            <td width="30%">
+                <input name="name" type="text" style="width:200px;" prompt="请填写方法名称"
+                       class="easyui-textbox" maxLength="20"  value="${method.name}"
+                       data-options="required:true"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">按钮图标:</td>
+            <td width="30%">
+                &nbsp;<img src="${ctxPath}${method.iconPath}" width="16px;" height="16px;" id="imgsrc" >&nbsp;
+                <a href="#" class="easyui-linkbutton" onclick="javascript:chooseIcon()">选择</a>
+            </td>
+            <td class="sztabletext" width="20%">图标位置:</td>
+            <td width="30%">
+                <#dictTag name="iconPosition" showType="radio" dictCode="iconPosition" width="200" value="${method.iconPosition}" ></#dictTag>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">方法类型:</td>
+            <td width="30%">
+                <#dictTag name="methodType" showType="select" showNull="false" dictCode="methodType" width="200"  value="${method.methodType}" ></#dictTag>
+            </td>
+            <td class="sztabletext" width="20%">展示类型:</td>
+            <td width="30%">
+                <#dictTag name="showType" showType="select" showNull="false" dictCode="showType" width="200"  value="${method.showType}" dataOptions="onChange:doShow"></#dictTag>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">是否可用</td>
+            <td width="30%">
+                <#dictTag name="status" showType="radio" dictCode="status" width="200" value="${method.status}" ></#dictTag>
+            </td>
+            <td class="sztabletext" width="20%">默认方法:</td>
+            <td width="30%">
+                <#dictTag name="defaultMethod" showType="radio" dictCode="yesornot" width="200" value="${method.defaultMethod}" ></#dictTag>
+            </td>
+        </tr>
+        <tr>
+            <td class="sztabletext" width="20%">是否自适应:</td>
+            <td width="30%">
+                <#dictTag name="fitCloumn" showType="radio" dictCode="yesornot" width="200"  value="${method.fitCloumn}"></#dictTag>
+            </td>
+            <td class="sztabletext" width="20%">排序:</td>
+            <td width="30%">
+                <input name="seq" type="text" style="width:200px;"
+                       class="easyui-numberbox" maxLength="3"  value="${method.seq}"
+                       data-options="required:true"/>
+            </td>
+        </tr>
+    </table>
+    </div>
+    <div id="p2" class="easyui-panel" title="扩展设置" style="width:100%;" data-options="collapsible:true ">
+    <table width="100%" class="sztable" align="center">
+        <tr class="queryTr" >
+            <td class="sztabletext" width="20%">视图SQL:</td>
+            <td colspan="3">
+                <input id="viewSql" name="viewSql" type="text"  style="width:690px;height:100px" multiline="true"
+                       prompt="请填写视图SQL"  value="${method.viewSql}"
+                       class="easyui-textbox" maxLength="400"  validType="length[0,400]"/>
+            </td>
+        </tr>
+        <tr class="queryTr" >
+            <td class="sztabletext" width="20%">是否单选:</td>
+            <td width="30%">
+                <#dictTag name="singleAble" showType="radio" dictCode="yesornot" showNull="false" width="200" value="${method.singleAble}" ></#dictTag>
+            </td>
+            <td class="sztabletext" width="20%">是否初始加载:</td>
+            <td width="30%">
+                <#dictTag name="firstLoad" showType="radio" dictCode="yesornot" showNull="false" width="200" value="${method.firstLoad}"  ></#dictTag>
+            </td>
+        </tr>
+        <tr class="queryTr" >
+            <td class="sztabletext" width="20%">默认排序字段:</td>
+            <td width="30%">
+                <input name="defaultOrder" type="text"  style="width:200px;" value="${method.defaultOrder}"
+                       class="easyui-textbox"  maxLength="20" />
+            </td>
+            <td class="sztabletext" width="20%">排序方式:</td>
+            <td width="30%">
+                <#dictTag name="orderType" showType="radio" dictCode="orderType" width="200"  value="${method.orderType!'asc'}" ></#dictTag>
+            </td>
+        </tr>
+        <tr class="dialogTr">
+            <td class="sztabletext" width="20%">弹窗宽度:</td>
+            <td width="30%">
+                <input name="width" type="text" style="width:200px;"  data-options="min:100"
+                       class="easyui-numberbox" maxLength="4" value="${method.width}"
+                       data-options="required:true"/>
+            </td>
+            <td class="sztabletext" width="20%">弹窗高度:</td>
+            <td width="30%">
+                <input name="height" type="text" style="width:200px;" data-options="min:100"
+                       class="easyui-numberbox" maxLength="4"  value="${method.height}"
+                       data-options="required:true"/>
+            </td>
+        </tr>
+        <tr class="dialogTr">
+            <td class="sztabletext" width="20%">提示内容:</td>
+            <td colspan="3">
+                <input name="msg" type="text" style="width:690px;" value="${method.msg}"
+                       class="easyui-textbox" maxLength="120"  prompt="请填写提示内容"  value="修改成功"/>
+            </td>
+        </tr>
+    </table>
+    </div>
+    <div id="p3" class="easyui-panel" title="高级设置" style="width:100%;" data-options="collapsible:true ">
+        <table width="100%" class="sztable" align="center">
+            <tr>
+                <td class="sztabletext" width="20%">依赖JS:</td>
+                <td colspan="3">
+                    <input name="diyJs" type="text"  style="width:690px;"  value="${method.diyJs}"  class="easyui-textbox"  maxLength="120"  prompt="请填写js路径"  />
+                </td>
+            </tr>
+            <tr>
+                <td class="sztabletext" width="20%">初始字典:</td>
+                <td colspan="3">
+                    <input name="initDict" type="text"  style="width:690px;" value="${method.initDict}" class="easyui-textbox"  maxLength="120"  prompt="请填写字典code值，多个用逗号分隔" />
+                </td>
+            </tr>
+            <tr>
+                <td class="sztabletext" width="20%">页面路径:</td>
+                <td colspan="3">
+                    <input name="pagePath" type="text" style="width:690px;" class="easyui-textbox" maxLength="120"  prompt="请填写页面路径" value="${method.pagePath}"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="sztabletext" width="20%">描述:</td>
+                <td colspan="3">
+                    <input name="note" type="text"  style="width:690px;"  prompt="请填写描述" value="${method.note}"
+                           class="easyui-textbox" maxLength="200" />
+                </td>
+            </tr>
+            <tr style="background: #f1f1f1;">
+                <td align="center" colspan="4">
+                    <a href="javascript:{doSave()}" class="easyui-linkbutton" iconCls="icon-save"   >保存</a>
+                    <a href="javascript:{doClear()}" class="easyui-linkbutton" iconCls="icon-redo"  >重置</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+<script type="text/javascript" >
+
+    $(function () {
+        doShow();
+    });
+
+    /**
+     * 隐藏、显示控件
+     */
+    function doShow() {
+        //方法类型，显示类型
+        var showType = $("#showType").combobox("getValue") || "dataGrid";
+        if(showType == "dataGrid"){
+            $(".dialogTr").css("display" , "none");
+            $(".queryTr").css("display" , "");
+        }else {
+            $(".dialogTr").css("display" , "");
+            $(".queryTr").css("display" , "none");
+        }
+    }
+
+
+
+    /**
+     * 选择图标
+     */
+    var chooseIcon = function () {
+        xlauch.selIcon({
+            selfun : function (iconUrl, iconCss) {
+                $('#icon').val(iconCss);
+                $('#iconPath').val(iconUrl);
+                $("#imgsrc").attr("src","${ctxPath}" + iconUrl);
+            }
+        }, "${ctxPath}")
+    }
+
+    /**
+     * 保存方法
+     */
+    function doSave() {
+        var f = $("#editForm");
+        if (f.form('validate')) {
+            var options = {
+                type : "post",
+                url: "${ctxPath}/deve/deveObjectMethod/edit",
+                cache : "false",
+                contentType: "application/x-www-form-urlencoded;charset=utf-8",
+                beforeSend : function () {
+                    parent.$.messager.progress({
+                        text : '正在处理中...'
+                    });
+                },
+                success : function(json){
+                    parent.$.messager.progress('close');
+                    var _msg = json._msg ;
+                    if (json._code == xlauch.RES_SUCC) {
+                        _msg =  "保存成功" ;
+                    }
+                    parent.xlauch.messagerShow({
+                        msg : _msg,
+                        title : '提示'
+                    });
+                },
+                error : function(json){
+                    json = json.responseJSON ;
+                    var _msg = json["_msg"] + "错误代码:" + json._code ;
+                    parent.$.messager.alert("提示", "保存失败，" + _msg);
+                    parent.$.messager.progress('close');
+                }
+            };
+            // 异步提交
+            f.ajaxSubmit(options);
+        }
+    }
+
+
+</script>
+
+</body>
+</html>
